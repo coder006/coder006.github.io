@@ -15,7 +15,6 @@ Erin   | lamb madras | HOT      | $5
 
 There are **multiple syntax highlighting themes** to choose from. Here's one of them:
 
-
 ```javascript
 // All the code you will ever need
 var hw = "Hello World!"

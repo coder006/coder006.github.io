@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>All Things Connected - Python</title><link href="https://ambar.dev/" rel="alternate"></link><link href="https://ambar.dev/feeds/python.atom.xml" rel="self"></link><id>https://ambar.dev/</id><updated>2010-12-05T19:30:00+05:30</updated><entry><title>First Post</title><link href="https://ambar.dev/my-super-post.html" rel="alternate"></link><published>2010-12-03T10:20:00+05:30</published><updated>2010-12-05T19:30:00+05:30</updated><author><name>Ambar Mehrotra</name></author><id>tag:ambar.dev,2010-12-03:/my-super-post.html</id><summary type="html">&lt;p&gt;Short version for index and feeds&lt;/p&gt;</summary><content type="html">&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Name&lt;/th&gt;
+&lt;th&gt;Lunch order&lt;/th&gt;
+&lt;th&gt;Spicy&lt;/th&gt;
+&lt;th align="right"&gt;Owes&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Joan&lt;/td&gt;
+&lt;td&gt;saag paneer&lt;/td&gt;
+&lt;td&gt;medium&lt;/td&gt;
+&lt;td align="right"&gt;$11&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Sally&lt;/td&gt;
+&lt;td&gt;vindaloo&lt;/td&gt;
+&lt;td&gt;mild&lt;/td&gt;
+&lt;td align="right"&gt;$14&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Erin&lt;/td&gt;
+&lt;td&gt;lamb madras&lt;/td&gt;
+&lt;td&gt;HOT&lt;/td&gt;
+&lt;td align="right"&gt;$5&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;There are &lt;strong&gt;multiple syntax highlighting themes&lt;/strong&gt; to choose from. Here's one of them:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// All the code you will ever need&lt;/span&gt;
+&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;hw&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Hello World!&amp;quot;&lt;/span&gt;
+&lt;span class="nx"&gt;alert&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;hw&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;My math is so rusty that I barely remember the &lt;em&gt;quadratic equation&lt;/em&gt;:
+$-b \pm \sqrt{b^2 - 4ac} \over 2a$&lt;/p&gt;</content><category term="Python"></category><category term="pelican"></category><category term="publishing"></category></entry></feed>

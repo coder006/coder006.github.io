@@ -31,5 +31,7 @@ SOCIAL = (('You can add links in your config file', '#'),
 DEFAULT_PAGINATION = 10
 
 THEME = "D:\workspace\pelican\pelican-themes\\hyde"
+STATIC_PATHS = ['images']
+PROFILE_IMAGE = "profile-picture.jpeg"
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True

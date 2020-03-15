@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0"><channel><title>All Things Connected</title><link>/</link><description></description><lastBuildDate>Sun, 05 Dec 2010 19:30:00 +0530</lastBuildDate><item><title>First Post</title><link>/my-super-post.html</link><description>&lt;table&gt;
+<rss version="2.0"><channel><title>All Things Connected</title><link>https://ambar.dev/</link><description></description><lastBuildDate>Thu, 06 Feb 2020 16:30:00 +0530</lastBuildDate><item><title>AWS Assume Role with External Id and Terraform</title><link>https://ambar.dev/aws-assume-role-external-id-terraform.html</link><description>&lt;p&gt;AWS provides a multitude of options for users or services to authenticate with AWS and make API calls. The process usually involves creating &lt;strong&gt;IAM users&lt;/strong&gt; who can authenticate with AWS services in various ways. Most people are aware of the most commonly used key based authentiacation which involves using &lt;code&gt;aws_access_key_id&lt;/code&gt; and &lt;code&gt;aws_secret_access_key&lt;/code&gt; in either the &lt;code&gt;~/.aws/credentials&lt;/code&gt; file or setting the equivalent environment variables.
+Although, there might &lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Ambar Mehrotra</dc:creator><pubDate>Thu, 06 Feb 2020 16:30:00 +0530</pubDate><guid isPermaLink="false">tag:ambar.dev,2020-02-06:/aws-assume-role-external-id-terraform.html</guid><category>AWS</category><category>aws</category><category>terraform</category><category>assumerole</category><category>externalid</category></item><item><title>First Post</title><link>https://ambar.dev/my-super-post.html</link><description>&lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
 &lt;th&gt;Name&lt;/th&gt;
@@ -37,4 +38,4 @@
 
 
 &lt;p&gt;My math is so rusty that I barely remember the &lt;em&gt;quadratic equation&lt;/em&gt;:
-$-b \pm \sqrt{b^2 - 4ac} \over 2a$&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Ambar Mehrotra</dc:creator><pubDate>Fri, 03 Dec 2010 10:20:00 +0530</pubDate><guid isPermaLink="false">tag:None,2010-12-03:/my-super-post.html</guid><category>Python</category><category>pelican</category><category>publishing</category></item></channel></rss>
+$-b \pm \sqrt{b^2 - 4ac} \over 2a$&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Ambar Mehrotra</dc:creator><pubDate>Fri, 03 Dec 2010 10:20:00 +0530</pubDate><guid isPermaLink="false">tag:ambar.dev,2010-12-03:/my-super-post.html</guid><category>Python</category><category>pelican</category><category>publishing</category></item></channel></rss>

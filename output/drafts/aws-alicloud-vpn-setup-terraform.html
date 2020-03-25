@@ -71,6 +71,20 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 <p><img alt="Multi Cloud Architecture" src="../images/multi-cloud-architecture.png" title="Multi Cloud Architecture"></p>
 <p>Creating a VPN connection helps you securely access resources on one cloud provider from another over an encrypted connection. A VPN connection helps you avoid the hassle of exposing public endpoints for each resource and then securing it. You can simply go ahead and whietelist a CIDR block across the VPCs and all your traffic in the given CIDR range will then be routed over this secure, encrypted connection.</p>
 <h2>VPN Setup</h2>
+<div class="highlight"><pre><span></span><span class="k">data</span> <span class="ss">&quot;aws_route_table&quot;</span> <span class="ss">&quot;aws_private_subnet_rt&quot;</span> <span class="err">{</span>
+  <span class="n">subnet_id</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">tooling</span><span class="o">-</span><span class="n">vpc</span><span class="p">.</span><span class="n">private_subnet_id</span>
+<span class="err">}</span>
+
+<span class="n">resource</span> <span class="ss">&quot;alicloud_vpn_gateway&quot;</span> <span class="ss">&quot;aws_vpn_gateway&quot;</span> <span class="err">{</span>
+  <span class="n">name</span>                 <span class="o">=</span> <span class="ss">&quot;AWS-VPN-Gateway&quot;</span>
+  <span class="n">vpc_id</span>               <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">vpc_details</span><span class="p">.</span><span class="n">vpc_id</span>
+  <span class="n">bandwidth</span>            <span class="o">=</span> <span class="ss">&quot;10&quot;</span>
+  <span class="n">enable_ssl</span>           <span class="o">=</span> <span class="k">false</span>
+  <span class="n">instance_charge_type</span> <span class="o">=</span> <span class="ss">&quot;PostPaid&quot;</span>
+  <span class="n">description</span>          <span class="o">=</span> <span class="ss">&quot;AWS-VPN-Gateway&quot;</span>
+  <span class="n">vswitch_id</span>           <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">vpc_details</span><span class="p">.</span><span class="n">vswitch_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="err">}</span>
+</pre></div>
  -->
 </div>
 <div style="text-align: justify;">
@@ -83,6 +97,20 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 <p><img alt="Multi Cloud Architecture" src="../images/multi-cloud-architecture.png" title="Multi Cloud Architecture"></p>
 <p>Creating a VPN connection helps you securely access resources on one cloud provider from another over an encrypted connection. A VPN connection helps you avoid the hassle of exposing public endpoints for each resource and then securing it. You can simply go ahead and whietelist a CIDR block across the VPCs and all your traffic in the given CIDR range will then be routed over this secure, encrypted connection.</p>
 <h2>VPN Setup</h2>
+<div class="highlight"><pre><span></span><span class="k">data</span> <span class="ss">&quot;aws_route_table&quot;</span> <span class="ss">&quot;aws_private_subnet_rt&quot;</span> <span class="err">{</span>
+  <span class="n">subnet_id</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">tooling</span><span class="o">-</span><span class="n">vpc</span><span class="p">.</span><span class="n">private_subnet_id</span>
+<span class="err">}</span>
+
+<span class="n">resource</span> <span class="ss">&quot;alicloud_vpn_gateway&quot;</span> <span class="ss">&quot;aws_vpn_gateway&quot;</span> <span class="err">{</span>
+  <span class="n">name</span>                 <span class="o">=</span> <span class="ss">&quot;AWS-VPN-Gateway&quot;</span>
+  <span class="n">vpc_id</span>               <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">vpc_details</span><span class="p">.</span><span class="n">vpc_id</span>
+  <span class="n">bandwidth</span>            <span class="o">=</span> <span class="ss">&quot;10&quot;</span>
+  <span class="n">enable_ssl</span>           <span class="o">=</span> <span class="k">false</span>
+  <span class="n">instance_charge_type</span> <span class="o">=</span> <span class="ss">&quot;PostPaid&quot;</span>
+  <span class="n">description</span>          <span class="o">=</span> <span class="ss">&quot;AWS-VPN-Gateway&quot;</span>
+  <span class="n">vswitch_id</span>           <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">vpc_details</span><span class="p">.</span><span class="n">vswitch_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="err">}</span>
+</pre></div>
 </div>
 <div>
 </div>

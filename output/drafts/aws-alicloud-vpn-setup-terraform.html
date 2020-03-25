@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns#">
+	<head>
+		<link href="http://gmpg.org/xfn/11" rel="profile">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+		<!-- Metadata -->
+	<meta name="description" content="">
+	<meta property="og:description" content="">
+	<meta property="og:title" content="Setting up a VPN connection between AWS and Alicloud using Terraform" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://ambar.dev/drafts/aws-alicloud-vpn-setup-terraform.html" />
+		<meta property="og:image" content="https://ambar.dev/images/profile-picture.jpeg" />
+
+		<!-- Enable responsiveness on mobile devices-->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+		<title>All Things Connected</title>
+
+		<!-- CSS -->
+		<link href="//fonts.googleapis.com/" rel="dns-prefetch">
+		<link href="//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic|Abril+Fatface|PT+Sans:400,400italic,700&amp;subset=latin,latin-ext" rel="stylesheet">
+
+		<link rel="stylesheet" href="https://ambar.dev/theme/css/poole.css" />
+		<link rel="stylesheet" href="https://ambar.dev/theme/css/hyde.css" />
+		<link rel="stylesheet" href="https://ambar.dev/theme/css/syntax.css" />
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+		<!-- RSS -->
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+	</head>
+
+	<body class="theme-base-0d">
+<div class="sidebar">
+	<div class="container sidebar-sticky">
+		<div class="sidebar-about">
+
+			<h1>
+				<a href="/">
+					<img class="profile-picture" src="https://ambar.dev/images/profile-picture.jpeg">
+					All Things Connected
+				</a>
+			</h1>
+			<p class="lead"></p>
+			<p class="lead"> </p>
+			<p></p>
+		</div>
+		<div class="sidebar-nav">
+			<a class="sidebar-nav-item" href="mailto:mehrotraambar@gmail.com">
+				<i class="fa fa-envelope"></i>
+			</a>
+			<a class="sidebar-nav-item" href="https://twitter.com/decoder006" target="_blank">
+				<i class="fa fa-twitter"></i>
+			</a>
+			<a class="sidebar-nav-item" href="https://github.com/coder006" target="_blank">
+				<i class="fa fa-github"></i>
+			</a>
+		</div>
+	</div>
+</div>		<div class="content container">
+<div class="post">
+	<h1 class="post-title">Setting up a VPN connection between AWS and Alicloud using Terraform</h1>
+	<span class="post-date">Thu 19 March 2020</span>
+	<!-- <blockquote>
+<p><strong><em>Note</em></strong>:
+This is not a guide on the internals of a Virtual Private Network. Rather, this post outlines how to setup a VPN connection between AWS and Alicloud. This guide uses Terraform for making API calls and state management. You can chose to use any HTTP client or aws and alicloud CLIs as well for making the same API calls and end up with a working VPN connection.</p>
+</blockquote>
+<h2>Problem Statement</h2>
+<p>When you are working in a multicloud environment, many scenarios involve establishing a communication channel between services and resources that lie across cloud providers. For example, you might have a common <strong>Rundeck</strong> machine that deployes the build binaries onto virtual machines residing in AWS as well as Azure. Another example might be a script in your CI/CD platform that interacts periodically with resources across cloud providers like <strong>RDS</strong>, <strong>Mongo</strong>, <strong>RabbitMQ</strong>, etc., for regularly monitoring or updating different ACL Policies.</p>
+<p><img alt="Multi Cloud Architecture" src="../images/multi-cloud-architecture.png" title="Multi Cloud Architecture"></p>
+<p>Creating a VPN connection helps you securely access resources on one cloud provider from another over an encrypted connection. A VPN connection helps you avoid the hassle of exposing public endpoints for each resource and then securing it. You can simply go ahead and whietelist a CIDR block across the VPCs and all your traffic in the given CIDR range will then be routed over this secure, encrypted connection.</p>
+<h2>VPN Setup</h2>
+ -->
+</div>
+<div style="text-align: justify;">
+	<blockquote>
+<p><strong><em>Note</em></strong>:
+This is not a guide on the internals of a Virtual Private Network. Rather, this post outlines how to setup a VPN connection between AWS and Alicloud. This guide uses Terraform for making API calls and state management. You can chose to use any HTTP client or aws and alicloud CLIs as well for making the same API calls and end up with a working VPN connection.</p>
+</blockquote>
+<h2>Problem Statement</h2>
+<p>When you are working in a multicloud environment, many scenarios involve establishing a communication channel between services and resources that lie across cloud providers. For example, you might have a common <strong>Rundeck</strong> machine that deployes the build binaries onto virtual machines residing in AWS as well as Azure. Another example might be a script in your CI/CD platform that interacts periodically with resources across cloud providers like <strong>RDS</strong>, <strong>Mongo</strong>, <strong>RabbitMQ</strong>, etc., for regularly monitoring or updating different ACL Policies.</p>
+<p><img alt="Multi Cloud Architecture" src="../images/multi-cloud-architecture.png" title="Multi Cloud Architecture"></p>
+<p>Creating a VPN connection helps you securely access resources on one cloud provider from another over an encrypted connection. A VPN connection helps you avoid the hassle of exposing public endpoints for each resource and then securing it. You can simply go ahead and whietelist a CIDR block across the VPCs and all your traffic in the given CIDR range will then be routed over this secure, encrypted connection.</p>
+<h2>VPN Setup</h2>
+</div>
+<div>
+</div>
+		</div>
+	</body>
+</html>

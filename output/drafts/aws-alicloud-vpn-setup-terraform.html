@@ -68,22 +68,238 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 </blockquote>
 <h2>Problem Statement</h2>
 <p>When you are working in a multicloud environment, many scenarios involve establishing a communication channel between services and resources that lie across cloud providers. For example, you might have a common <strong>Rundeck</strong> machine that deployes the build binaries onto virtual machines residing in AWS as well as Azure. Another example might be a script in your CI/CD platform that interacts periodically with resources across cloud providers like <strong>RDS</strong>, <strong>Mongo</strong>, <strong>RabbitMQ</strong>, etc., for regularly monitoring or updating different ACL Policies.</p>
-<p><img alt="Multi Cloud Architecture" src="../images/multi-cloud-architecture.png" title="Multi Cloud Architecture"></p>
+<p><img alt="Multi Cloud Architecture" src="https://www.simform.com/wp-content/uploads/2017/11/Blog-Diagram1.png" title="Multi Cloud Architecture"></p>
 <p>Creating a VPN connection helps you securely access resources on one cloud provider from another over an encrypted connection. A VPN connection helps you avoid the hassle of exposing public endpoints for each resource and then securing it. You can simply go ahead and whietelist a CIDR block across the VPCs and all your traffic in the given CIDR range will then be routed over this secure, encrypted connection.</p>
 <h2>VPN Setup</h2>
-<div class="highlight"><pre><span></span><span class="k">data</span> <span class="ss">&quot;aws_route_table&quot;</span> <span class="ss">&quot;aws_private_subnet_rt&quot;</span> <span class="err">{</span>
-  <span class="n">subnet_id</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">tooling</span><span class="o">-</span><span class="n">vpc</span><span class="p">.</span><span class="n">private_subnet_id</span>
-<span class="err">}</span>
+<p>Setting up a VPN connection mainly involves setting up the following components in both AWS and Alicloud:</p>
+<ul>
+<li>VPN Gateway</li>
+<li>Customer Gateway</li>
+<li>VPN Connection</li>
+<li>Connection Route</li>
+</ul>
+<p>First and foremost, following are the cluster specific variables that we will need for AWS and Alicloud:</p>
+<h3>Variables and Cluster Definition</h3>
+<div class="highlight"><pre><span></span><span class="cp"># Default region: Singapore</span>
+<span class="n">variable</span> <span class="s">&quot;aws_vpc&quot;</span> <span class="p">{</span>
+  <span class="n">type</span> <span class="o">=</span> <span class="n">object</span><span class="p">({</span>
+    <span class="n">region</span>    <span class="o">=</span> <span class="n">string</span>
+    <span class="n">profile</span>   <span class="o">=</span> <span class="n">string</span>
+    <span class="n">vpc_id</span>    <span class="o">=</span> <span class="n">string</span>
+    <span class="n">cidr</span>      <span class="o">=</span> <span class="n">string</span>
+    <span class="n">subnet_id</span> <span class="o">=</span> <span class="n">string</span>
+  <span class="p">})</span>
 
-<span class="n">resource</span> <span class="ss">&quot;alicloud_vpn_gateway&quot;</span> <span class="ss">&quot;aws_vpn_gateway&quot;</span> <span class="err">{</span>
-  <span class="n">name</span>                 <span class="o">=</span> <span class="ss">&quot;AWS-VPN-Gateway&quot;</span>
-  <span class="n">vpc_id</span>               <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">vpc_details</span><span class="p">.</span><span class="n">vpc_id</span>
-  <span class="n">bandwidth</span>            <span class="o">=</span> <span class="ss">&quot;10&quot;</span>
-  <span class="n">enable_ssl</span>           <span class="o">=</span> <span class="k">false</span>
-  <span class="n">instance_charge_type</span> <span class="o">=</span> <span class="ss">&quot;PostPaid&quot;</span>
-  <span class="n">description</span>          <span class="o">=</span> <span class="ss">&quot;AWS-VPN-Gateway&quot;</span>
-  <span class="n">vswitch_id</span>           <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">vpc_details</span><span class="p">.</span><span class="n">vswitch_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="err">}</span>
+  <span class="k">default</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">region</span>    <span class="o">=</span> <span class="s">&quot;ap-southeast-1&quot;</span>
+    <span class="n">profile</span>   <span class="o">=</span> <span class="s">&quot;aws-profile&quot;</span>
+    <span class="n">vpc_id</span>    <span class="o">=</span> <span class="s">&quot;123456789&quot;</span>
+    <span class="n">cidr</span>      <span class="o">=</span> <span class="s">&quot;172.10.0.0/16&quot;</span>
+    <span class="n">subnet_id</span> <span class="o">=</span> <span class="s">&quot;subnet-123&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cp"># Default region: Singapore</span>
+<span class="cp"># vswitch: AWS subnet equivalent in Alicloud</span>
+<span class="n">variable</span> <span class="s">&quot;alicloud_vpc&quot;</span> <span class="p">{</span>
+  <span class="n">type</span> <span class="o">=</span> <span class="n">object</span><span class="p">({</span>
+    <span class="n">region</span>      <span class="o">=</span> <span class="n">string</span>
+    <span class="n">profile</span>     <span class="o">=</span> <span class="n">string</span>
+    <span class="n">vpc_id</span>      <span class="o">=</span> <span class="n">string</span>
+    <span class="n">cidr</span>        <span class="o">=</span> <span class="n">string</span>
+    <span class="n">vswitch_id</span>  <span class="o">=</span> <span class="n">string</span>
+  <span class="p">})</span>
+
+  <span class="k">default</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">region</span>      <span class="o">=</span> <span class="s">&quot;ap-southeast-1&quot;</span>
+    <span class="n">profile</span>     <span class="o">=</span> <span class="s">&quot;alicloud-profile&quot;</span>
+    <span class="n">vpc_id</span>      <span class="o">=</span> <span class="s">&quot;987654321&quot;</span>
+    <span class="n">cidr</span>        <span class="o">=</span> <span class="s">&quot;172.20.0.0/16&quot;</span>
+    <span class="n">vswitch_id</span>  <span class="o">=</span> <span class="s">&quot;vswitch-123&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>Terraform Providers for AWS and Alicloud</h3>
+<div class="highlight"><pre><span></span><span class="n">provider</span> <span class="s">&quot;aws&quot;</span> <span class="p">{</span>
+  <span class="n">region</span>  <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">region</span>
+  <span class="n">version</span> <span class="o">=</span> <span class="s">&quot;~&gt; 2.45.0&quot;</span>
+  <span class="n">profile</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">profile</span>
+<span class="p">}</span>
+
+<span class="n">provider</span> <span class="s">&quot;alicloud&quot;</span> <span class="p">{</span>
+  <span class="n">region</span>  <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">region</span>
+  <span class="n">version</span> <span class="o">=</span> <span class="s">&quot;1.71.1&quot;</span>
+  <span class="n">profile</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">profile</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>The first step is creating VPN Gateways in both Alicloud and AWS:</p>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;alicloud_vpn_gateway&quot;</span> <span class="s">&quot;aws_vpn_gateway&quot;</span> <span class="p">{</span>
+  <span class="n">name</span>                 <span class="o">=</span> <span class="s">&quot;AWS-VPN-Gateway&quot;</span>
+  <span class="n">vpc_id</span>               <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">vpc_id</span>
+  <span class="n">bandwidth</span>            <span class="o">=</span> <span class="s">&quot;10&quot;</span>
+  <span class="n">enable_ssl</span>           <span class="o">=</span> <span class="nb">false</span>
+  <span class="n">instance_charge_type</span> <span class="o">=</span> <span class="s">&quot;PostPaid&quot;</span>
+  <span class="n">description</span>          <span class="o">=</span> <span class="s">&quot;AWS-VPN-Gateway&quot;</span>
+  <span class="n">vswitch_id</span>           <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">vswitch_id</span>
+<span class="p">}</span>
+
+<span class="n">resource</span> <span class="s">&quot;aws_vpn_gateway&quot;</span> <span class="s">&quot;alicloud_vpn_gateway&quot;</span> <span class="p">{</span>
+  <span class="n">vpc_id</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">vpc_id</span>
+
+  <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">Name</span> <span class="o">=</span> <span class="s">&quot;Alicloud-VPN-GW&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h2>VPN Setup in AWS</h2>
+<p>Creating the VPN Gateway will give us a publically accessible IP address of that gateway. In the first step, we will use the IP address of the Alicloud VPN Gateway to setup AWS side of things. Later on, we will repeat the same process in for Alicloud as well.</p>
+<h3>AWS Customer Gateway</h3>
+<p>According to AWS:</p>
+<blockquote>
+<p>A customer gateway is a resource in AWS that provides information to AWS about your Customer Gateway Device</p>
+</blockquote>
+<p>A Customer Gateway basically lets AWS know about the remote/destination address where the traffic should be forwarded if the destination IP belongs to the Alicloud CIDR range</p>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;aws_customer_gateway&quot;</span> <span class="s">&quot;alicloud_vpn_gw&quot;</span> <span class="p">{</span>
+  <span class="n">bgp_asn</span>    <span class="o">=</span> <span class="mi">65000</span>
+  <span class="n">ip_address</span> <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">internet_ip</span>
+  <span class="n">type</span>       <span class="o">=</span> <span class="s">&quot;ipsec.1&quot;</span>
+
+  <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">Name</span> <span class="o">=</span> <span class="s">&quot;alicloud-customer-gateway&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>VPN Connection</h3>
+<p>A VPN Connection resource in AWS creates 2 <em>Tunnels</em> between your VPC and the remote network (Alicloud Network represented by <code>customer_gateway_id</code> in this case). AWS will create 2 tunnels for redundancy. In case one of the tunnels goes down, the traffic is automatically routed through the other tunnel</p>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;aws_vpn_connection&quot;</span> <span class="s">&quot;alicloud_vpn_connection&quot;</span> <span class="p">{</span>
+  <span class="n">vpn_gateway_id</span>      <span class="o">=</span> <span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">customer_gateway_id</span> <span class="o">=</span> <span class="n">aws_customer_gateway</span><span class="p">.</span><span class="n">alicloud_vpn_gw</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">type</span>                <span class="o">=</span> <span class="s">&quot;ipsec.1&quot;</span>
+  <span class="n">static_routes_only</span>  <span class="o">=</span> <span class="nb">true</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>VPN Connection Route Entry</h3>
+<p>This entry tells the VPN connection created in the previous step about the CIDR range of the destination</p>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;aws_vpn_connection_route&quot;</span> <span class="s">&quot;alicloud&quot;</span> <span class="p">{</span>
+  <span class="n">destination_cidr_block</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">cidr</span>
+  <span class="n">vpn_connection_id</span>      <span class="o">=</span> <span class="n">aws_vpn_connection</span><span class="p">.</span><span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">id</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>AWS Route Table Modification</h3>
+<p>Next we need to fetch the route table of the private subnet and modify the route table to tell AWS to forward all the traffic ,belonging to the CIDR range of the destination, to the VPN Gateway that we created above</p>
+<div class="highlight"><pre><span></span><span class="n">data</span> <span class="s">&quot;aws_route_table&quot;</span> <span class="s">&quot;aws_private_subnet_rt&quot;</span> <span class="p">{</span>
+  <span class="n">subnet_id</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">subnet_id</span>
+<span class="p">}</span>
+
+<span class="n">resource</span> <span class="s">&quot;aws_route&quot;</span> <span class="s">&quot;r&quot;</span> <span class="p">{</span>
+  <span class="n">route_table_id</span>            <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">aws_route_table</span><span class="p">.</span><span class="n">aws_private_subnet_rt</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">destination_cidr_block</span>    <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">cidr</span>
+  <span class="n">gateway_id</span> <span class="o">=</span> <span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Once the AWS setup is done, we are going to repeat the same steps for Alicloud as well. I am not going to explain the terminologies again for Alicloud as they are more or less the same.</p>
+<h2>VPN Setup in Alicloud</h2>
+<p>First of all, we will create 2 customer gateways in Alicloud - one for each of the <em>Tunnels</em> created by the <em>VPN Connection</em> in AWS. The <code>ip_address</code> parameter will contain the IP address of each of the tunnels</p>
+<h3>Customer Gateway</h3>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;alicloud_vpn_customer_gateway&quot;</span> <span class="s">&quot;aws_customer_gateway_1&quot;</span> <span class="p">{</span>
+  <span class="n">name</span>        <span class="o">=</span> <span class="s">&quot;AWSCustomerGateway1&quot;</span>
+  <span class="n">ip_address</span>  <span class="o">=</span> <span class="n">aws_vpn_connection</span><span class="p">.</span><span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">tunnel1_address</span>
+  <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;AWSCustomerGateway1&quot;</span>
+<span class="p">}</span>
+
+<span class="n">resource</span> <span class="s">&quot;alicloud_vpn_customer_gateway&quot;</span> <span class="s">&quot;aws_customer_gateway_2&quot;</span> <span class="p">{</span>
+  <span class="n">name</span>        <span class="o">=</span> <span class="s">&quot;AWSCustomerGateway2&quot;</span>
+  <span class="n">ip_address</span>  <span class="o">=</span> <span class="n">aws_vpn_connection</span><span class="p">.</span><span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">tunnel2_address</span>
+  <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;AWSCustomerGateway2&quot;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>VPN Connection</h3>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;alicloud_vpn_connection&quot;</span> <span class="s">&quot;ipsec_connection_1&quot;</span> <span class="p">{</span>
+  <span class="n">name</span>                <span class="o">=</span> <span class="s">&quot;IPSecConnection1&quot;</span>
+  <span class="n">vpn_gateway_id</span>      <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">customer_gateway_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_customer_gateway</span><span class="p">.</span><span class="n">aws_customer_gateway_1</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">local_subnet</span>        <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">cidr</span><span class="p">]</span>
+  <span class="n">remote_subnet</span>       <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">cidr</span><span class="p">]</span>
+  <span class="n">effect_immediately</span>  <span class="o">=</span> <span class="nb">true</span>
+  <span class="n">ike_config</span> <span class="p">{</span>
+    <span class="n">ike_auth_alg</span>  <span class="o">=</span> <span class="s">&quot;sha1&quot;</span>
+    <span class="n">ike_enc_alg</span>   <span class="o">=</span> <span class="s">&quot;aes&quot;</span>
+    <span class="n">ike_version</span>   <span class="o">=</span> <span class="s">&quot;ikev1&quot;</span>
+    <span class="n">ike_mode</span>      <span class="o">=</span> <span class="s">&quot;main&quot;</span>
+    <span class="n">ike_lifetime</span>  <span class="o">=</span> <span class="mi">86400</span>
+    <span class="n">psk</span>           <span class="o">=</span> <span class="n">aws_vpn_connection</span><span class="p">.</span><span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">tunnel1_preshared_key</span>
+    <span class="n">ike_pfs</span>       <span class="o">=</span> <span class="s">&quot;group2&quot;</span>
+    <span class="n">ike_local_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">internet_ip</span>
+    <span class="n">ike_remote_id</span> <span class="o">=</span> <span class="n">aws_vpn_connection</span><span class="p">.</span><span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">tunnel1_address</span>
+  <span class="p">}</span>
+  <span class="n">ipsec_config</span> <span class="p">{</span>
+    <span class="n">ipsec_pfs</span>      <span class="o">=</span> <span class="s">&quot;group2&quot;</span>
+    <span class="n">ipsec_enc_alg</span>  <span class="o">=</span> <span class="s">&quot;aes&quot;</span>
+    <span class="n">ipsec_auth_alg</span> <span class="o">=</span> <span class="s">&quot;sha1&quot;</span>
+    <span class="n">ipsec_lifetime</span> <span class="o">=</span> <span class="mi">86400</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">resource</span> <span class="s">&quot;alicloud_vpn_connection&quot;</span> <span class="s">&quot;ipsec_connection_2&quot;</span> <span class="p">{</span>
+  <span class="n">name</span>                <span class="o">=</span> <span class="s">&quot;IPSecConnection2&quot;</span>
+  <span class="n">vpn_gateway_id</span>      <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">customer_gateway_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_customer_gateway</span><span class="p">.</span><span class="n">aws_customer_gateway_2</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">local_subnet</span>        <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">cidr</span><span class="p">]</span>
+  <span class="n">remote_subnet</span>       <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">cidr</span><span class="p">]</span>
+  <span class="n">effect_immediately</span>  <span class="o">=</span> <span class="nb">true</span>
+  <span class="n">ike_config</span> <span class="p">{</span>
+    <span class="n">ike_auth_alg</span>  <span class="o">=</span> <span class="s">&quot;sha1&quot;</span>
+    <span class="n">ike_enc_alg</span>   <span class="o">=</span> <span class="s">&quot;aes&quot;</span>
+    <span class="n">ike_version</span>   <span class="o">=</span> <span class="s">&quot;ikev1&quot;</span>
+    <span class="n">ike_mode</span>      <span class="o">=</span> <span class="s">&quot;main&quot;</span>
+    <span class="n">ike_lifetime</span>  <span class="o">=</span> <span class="mi">86400</span>
+    <span class="n">psk</span>           <span class="o">=</span> <span class="n">aws_vpn_connection</span><span class="p">.</span><span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">tunnel2_preshared_key</span>
+    <span class="n">ike_pfs</span>       <span class="o">=</span> <span class="s">&quot;group2&quot;</span>
+    <span class="n">ike_local_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">internet_ip</span>
+    <span class="n">ike_remote_id</span> <span class="o">=</span> <span class="n">aws_vpn_connection</span><span class="p">.</span><span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">tunnel2_address</span>
+  <span class="p">}</span>
+  <span class="n">ipsec_config</span> <span class="p">{</span>
+    <span class="n">ipsec_pfs</span>      <span class="o">=</span> <span class="s">&quot;group2&quot;</span>
+    <span class="n">ipsec_enc_alg</span>  <span class="o">=</span> <span class="s">&quot;aes&quot;</span>
+    <span class="n">ipsec_auth_alg</span> <span class="o">=</span> <span class="s">&quot;sha1&quot;</span>
+    <span class="n">ipsec_lifetime</span> <span class="o">=</span> <span class="mi">86400</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>VPN Connection Route Entry</h3>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;alicloud_vpn_route_entry&quot;</span> <span class="s">&quot;alicloud_vpn_route_entry_1&quot;</span> <span class="p">{</span>
+  <span class="n">vpn_gateway_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">route_dest</span>     <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">cidr</span>
+  <span class="n">next_hop</span>       <span class="o">=</span> <span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">ipsec_connection_1</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">weight</span>         <span class="o">=</span> <span class="mi">0</span>
+  <span class="n">publish_vpc</span>    <span class="o">=</span> <span class="nb">true</span>
+<span class="p">}</span>
+
+<span class="n">resource</span> <span class="s">&quot;alicloud_vpn_route_entry&quot;</span> <span class="s">&quot;alicloud_vpn_route_entry_2&quot;</span> <span class="p">{</span>
+  <span class="n">vpn_gateway_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">route_dest</span>     <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">cidr</span>
+  <span class="n">next_hop</span>       <span class="o">=</span> <span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">ipsec_connection_2</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">weight</span>         <span class="o">=</span> <span class="mi">100</span>
+  <span class="n">publish_vpc</span>    <span class="o">=</span> <span class="nb">true</span>
+<span class="p">}</span>
 </pre></div>
  -->
 </div>
@@ -94,22 +310,238 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 </blockquote>
 <h2>Problem Statement</h2>
 <p>When you are working in a multicloud environment, many scenarios involve establishing a communication channel between services and resources that lie across cloud providers. For example, you might have a common <strong>Rundeck</strong> machine that deployes the build binaries onto virtual machines residing in AWS as well as Azure. Another example might be a script in your CI/CD platform that interacts periodically with resources across cloud providers like <strong>RDS</strong>, <strong>Mongo</strong>, <strong>RabbitMQ</strong>, etc., for regularly monitoring or updating different ACL Policies.</p>
-<p><img alt="Multi Cloud Architecture" src="../images/multi-cloud-architecture.png" title="Multi Cloud Architecture"></p>
+<p><img alt="Multi Cloud Architecture" src="https://www.simform.com/wp-content/uploads/2017/11/Blog-Diagram1.png" title="Multi Cloud Architecture"></p>
 <p>Creating a VPN connection helps you securely access resources on one cloud provider from another over an encrypted connection. A VPN connection helps you avoid the hassle of exposing public endpoints for each resource and then securing it. You can simply go ahead and whietelist a CIDR block across the VPCs and all your traffic in the given CIDR range will then be routed over this secure, encrypted connection.</p>
 <h2>VPN Setup</h2>
-<div class="highlight"><pre><span></span><span class="k">data</span> <span class="ss">&quot;aws_route_table&quot;</span> <span class="ss">&quot;aws_private_subnet_rt&quot;</span> <span class="err">{</span>
-  <span class="n">subnet_id</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">tooling</span><span class="o">-</span><span class="n">vpc</span><span class="p">.</span><span class="n">private_subnet_id</span>
-<span class="err">}</span>
+<p>Setting up a VPN connection mainly involves setting up the following components in both AWS and Alicloud:</p>
+<ul>
+<li>VPN Gateway</li>
+<li>Customer Gateway</li>
+<li>VPN Connection</li>
+<li>Connection Route</li>
+</ul>
+<p>First and foremost, following are the cluster specific variables that we will need for AWS and Alicloud:</p>
+<h3>Variables and Cluster Definition</h3>
+<div class="highlight"><pre><span></span><span class="cp"># Default region: Singapore</span>
+<span class="n">variable</span> <span class="s">&quot;aws_vpc&quot;</span> <span class="p">{</span>
+  <span class="n">type</span> <span class="o">=</span> <span class="n">object</span><span class="p">({</span>
+    <span class="n">region</span>    <span class="o">=</span> <span class="n">string</span>
+    <span class="n">profile</span>   <span class="o">=</span> <span class="n">string</span>
+    <span class="n">vpc_id</span>    <span class="o">=</span> <span class="n">string</span>
+    <span class="n">cidr</span>      <span class="o">=</span> <span class="n">string</span>
+    <span class="n">subnet_id</span> <span class="o">=</span> <span class="n">string</span>
+  <span class="p">})</span>
 
-<span class="n">resource</span> <span class="ss">&quot;alicloud_vpn_gateway&quot;</span> <span class="ss">&quot;aws_vpn_gateway&quot;</span> <span class="err">{</span>
-  <span class="n">name</span>                 <span class="o">=</span> <span class="ss">&quot;AWS-VPN-Gateway&quot;</span>
-  <span class="n">vpc_id</span>               <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">vpc_details</span><span class="p">.</span><span class="n">vpc_id</span>
-  <span class="n">bandwidth</span>            <span class="o">=</span> <span class="ss">&quot;10&quot;</span>
-  <span class="n">enable_ssl</span>           <span class="o">=</span> <span class="k">false</span>
-  <span class="n">instance_charge_type</span> <span class="o">=</span> <span class="ss">&quot;PostPaid&quot;</span>
-  <span class="n">description</span>          <span class="o">=</span> <span class="ss">&quot;AWS-VPN-Gateway&quot;</span>
-  <span class="n">vswitch_id</span>           <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">vpc_details</span><span class="p">.</span><span class="n">vswitch_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="err">}</span>
+  <span class="k">default</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">region</span>    <span class="o">=</span> <span class="s">&quot;ap-southeast-1&quot;</span>
+    <span class="n">profile</span>   <span class="o">=</span> <span class="s">&quot;aws-profile&quot;</span>
+    <span class="n">vpc_id</span>    <span class="o">=</span> <span class="s">&quot;123456789&quot;</span>
+    <span class="n">cidr</span>      <span class="o">=</span> <span class="s">&quot;172.10.0.0/16&quot;</span>
+    <span class="n">subnet_id</span> <span class="o">=</span> <span class="s">&quot;subnet-123&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cp"># Default region: Singapore</span>
+<span class="cp"># vswitch: AWS subnet equivalent in Alicloud</span>
+<span class="n">variable</span> <span class="s">&quot;alicloud_vpc&quot;</span> <span class="p">{</span>
+  <span class="n">type</span> <span class="o">=</span> <span class="n">object</span><span class="p">({</span>
+    <span class="n">region</span>      <span class="o">=</span> <span class="n">string</span>
+    <span class="n">profile</span>     <span class="o">=</span> <span class="n">string</span>
+    <span class="n">vpc_id</span>      <span class="o">=</span> <span class="n">string</span>
+    <span class="n">cidr</span>        <span class="o">=</span> <span class="n">string</span>
+    <span class="n">vswitch_id</span>  <span class="o">=</span> <span class="n">string</span>
+  <span class="p">})</span>
+
+  <span class="k">default</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">region</span>      <span class="o">=</span> <span class="s">&quot;ap-southeast-1&quot;</span>
+    <span class="n">profile</span>     <span class="o">=</span> <span class="s">&quot;alicloud-profile&quot;</span>
+    <span class="n">vpc_id</span>      <span class="o">=</span> <span class="s">&quot;987654321&quot;</span>
+    <span class="n">cidr</span>        <span class="o">=</span> <span class="s">&quot;172.20.0.0/16&quot;</span>
+    <span class="n">vswitch_id</span>  <span class="o">=</span> <span class="s">&quot;vswitch-123&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>Terraform Providers for AWS and Alicloud</h3>
+<div class="highlight"><pre><span></span><span class="n">provider</span> <span class="s">&quot;aws&quot;</span> <span class="p">{</span>
+  <span class="n">region</span>  <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">region</span>
+  <span class="n">version</span> <span class="o">=</span> <span class="s">&quot;~&gt; 2.45.0&quot;</span>
+  <span class="n">profile</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">profile</span>
+<span class="p">}</span>
+
+<span class="n">provider</span> <span class="s">&quot;alicloud&quot;</span> <span class="p">{</span>
+  <span class="n">region</span>  <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">region</span>
+  <span class="n">version</span> <span class="o">=</span> <span class="s">&quot;1.71.1&quot;</span>
+  <span class="n">profile</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">profile</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>The first step is creating VPN Gateways in both Alicloud and AWS:</p>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;alicloud_vpn_gateway&quot;</span> <span class="s">&quot;aws_vpn_gateway&quot;</span> <span class="p">{</span>
+  <span class="n">name</span>                 <span class="o">=</span> <span class="s">&quot;AWS-VPN-Gateway&quot;</span>
+  <span class="n">vpc_id</span>               <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">vpc_id</span>
+  <span class="n">bandwidth</span>            <span class="o">=</span> <span class="s">&quot;10&quot;</span>
+  <span class="n">enable_ssl</span>           <span class="o">=</span> <span class="nb">false</span>
+  <span class="n">instance_charge_type</span> <span class="o">=</span> <span class="s">&quot;PostPaid&quot;</span>
+  <span class="n">description</span>          <span class="o">=</span> <span class="s">&quot;AWS-VPN-Gateway&quot;</span>
+  <span class="n">vswitch_id</span>           <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">vswitch_id</span>
+<span class="p">}</span>
+
+<span class="n">resource</span> <span class="s">&quot;aws_vpn_gateway&quot;</span> <span class="s">&quot;alicloud_vpn_gateway&quot;</span> <span class="p">{</span>
+  <span class="n">vpc_id</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">vpc_id</span>
+
+  <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">Name</span> <span class="o">=</span> <span class="s">&quot;Alicloud-VPN-GW&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h2>VPN Setup in AWS</h2>
+<p>Creating the VPN Gateway will give us a publically accessible IP address of that gateway. In the first step, we will use the IP address of the Alicloud VPN Gateway to setup AWS side of things. Later on, we will repeat the same process in for Alicloud as well.</p>
+<h3>AWS Customer Gateway</h3>
+<p>According to AWS:</p>
+<blockquote>
+<p>A customer gateway is a resource in AWS that provides information to AWS about your Customer Gateway Device</p>
+</blockquote>
+<p>A Customer Gateway basically lets AWS know about the remote/destination address where the traffic should be forwarded if the destination IP belongs to the Alicloud CIDR range</p>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;aws_customer_gateway&quot;</span> <span class="s">&quot;alicloud_vpn_gw&quot;</span> <span class="p">{</span>
+  <span class="n">bgp_asn</span>    <span class="o">=</span> <span class="mi">65000</span>
+  <span class="n">ip_address</span> <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">internet_ip</span>
+  <span class="n">type</span>       <span class="o">=</span> <span class="s">&quot;ipsec.1&quot;</span>
+
+  <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">Name</span> <span class="o">=</span> <span class="s">&quot;alicloud-customer-gateway&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>VPN Connection</h3>
+<p>A VPN Connection resource in AWS creates 2 <em>Tunnels</em> between your VPC and the remote network (Alicloud Network represented by <code>customer_gateway_id</code> in this case). AWS will create 2 tunnels for redundancy. In case one of the tunnels goes down, the traffic is automatically routed through the other tunnel</p>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;aws_vpn_connection&quot;</span> <span class="s">&quot;alicloud_vpn_connection&quot;</span> <span class="p">{</span>
+  <span class="n">vpn_gateway_id</span>      <span class="o">=</span> <span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">customer_gateway_id</span> <span class="o">=</span> <span class="n">aws_customer_gateway</span><span class="p">.</span><span class="n">alicloud_vpn_gw</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">type</span>                <span class="o">=</span> <span class="s">&quot;ipsec.1&quot;</span>
+  <span class="n">static_routes_only</span>  <span class="o">=</span> <span class="nb">true</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>VPN Connection Route Entry</h3>
+<p>This entry tells the VPN connection created in the previous step about the CIDR range of the destination</p>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;aws_vpn_connection_route&quot;</span> <span class="s">&quot;alicloud&quot;</span> <span class="p">{</span>
+  <span class="n">destination_cidr_block</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">cidr</span>
+  <span class="n">vpn_connection_id</span>      <span class="o">=</span> <span class="n">aws_vpn_connection</span><span class="p">.</span><span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">id</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>AWS Route Table Modification</h3>
+<p>Next we need to fetch the route table of the private subnet and modify the route table to tell AWS to forward all the traffic ,belonging to the CIDR range of the destination, to the VPN Gateway that we created above</p>
+<div class="highlight"><pre><span></span><span class="n">data</span> <span class="s">&quot;aws_route_table&quot;</span> <span class="s">&quot;aws_private_subnet_rt&quot;</span> <span class="p">{</span>
+  <span class="n">subnet_id</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">subnet_id</span>
+<span class="p">}</span>
+
+<span class="n">resource</span> <span class="s">&quot;aws_route&quot;</span> <span class="s">&quot;r&quot;</span> <span class="p">{</span>
+  <span class="n">route_table_id</span>            <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">aws_route_table</span><span class="p">.</span><span class="n">aws_private_subnet_rt</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">destination_cidr_block</span>    <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">cidr</span>
+  <span class="n">gateway_id</span> <span class="o">=</span> <span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Once the AWS setup is done, we are going to repeat the same steps for Alicloud as well. I am not going to explain the terminologies again for Alicloud as they are more or less the same.</p>
+<h2>VPN Setup in Alicloud</h2>
+<p>First of all, we will create 2 customer gateways in Alicloud - one for each of the <em>Tunnels</em> created by the <em>VPN Connection</em> in AWS. The <code>ip_address</code> parameter will contain the IP address of each of the tunnels</p>
+<h3>Customer Gateway</h3>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;alicloud_vpn_customer_gateway&quot;</span> <span class="s">&quot;aws_customer_gateway_1&quot;</span> <span class="p">{</span>
+  <span class="n">name</span>        <span class="o">=</span> <span class="s">&quot;AWSCustomerGateway1&quot;</span>
+  <span class="n">ip_address</span>  <span class="o">=</span> <span class="n">aws_vpn_connection</span><span class="p">.</span><span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">tunnel1_address</span>
+  <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;AWSCustomerGateway1&quot;</span>
+<span class="p">}</span>
+
+<span class="n">resource</span> <span class="s">&quot;alicloud_vpn_customer_gateway&quot;</span> <span class="s">&quot;aws_customer_gateway_2&quot;</span> <span class="p">{</span>
+  <span class="n">name</span>        <span class="o">=</span> <span class="s">&quot;AWSCustomerGateway2&quot;</span>
+  <span class="n">ip_address</span>  <span class="o">=</span> <span class="n">aws_vpn_connection</span><span class="p">.</span><span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">tunnel2_address</span>
+  <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;AWSCustomerGateway2&quot;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>VPN Connection</h3>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;alicloud_vpn_connection&quot;</span> <span class="s">&quot;ipsec_connection_1&quot;</span> <span class="p">{</span>
+  <span class="n">name</span>                <span class="o">=</span> <span class="s">&quot;IPSecConnection1&quot;</span>
+  <span class="n">vpn_gateway_id</span>      <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">customer_gateway_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_customer_gateway</span><span class="p">.</span><span class="n">aws_customer_gateway_1</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">local_subnet</span>        <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">cidr</span><span class="p">]</span>
+  <span class="n">remote_subnet</span>       <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">cidr</span><span class="p">]</span>
+  <span class="n">effect_immediately</span>  <span class="o">=</span> <span class="nb">true</span>
+  <span class="n">ike_config</span> <span class="p">{</span>
+    <span class="n">ike_auth_alg</span>  <span class="o">=</span> <span class="s">&quot;sha1&quot;</span>
+    <span class="n">ike_enc_alg</span>   <span class="o">=</span> <span class="s">&quot;aes&quot;</span>
+    <span class="n">ike_version</span>   <span class="o">=</span> <span class="s">&quot;ikev1&quot;</span>
+    <span class="n">ike_mode</span>      <span class="o">=</span> <span class="s">&quot;main&quot;</span>
+    <span class="n">ike_lifetime</span>  <span class="o">=</span> <span class="mi">86400</span>
+    <span class="n">psk</span>           <span class="o">=</span> <span class="n">aws_vpn_connection</span><span class="p">.</span><span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">tunnel1_preshared_key</span>
+    <span class="n">ike_pfs</span>       <span class="o">=</span> <span class="s">&quot;group2&quot;</span>
+    <span class="n">ike_local_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">internet_ip</span>
+    <span class="n">ike_remote_id</span> <span class="o">=</span> <span class="n">aws_vpn_connection</span><span class="p">.</span><span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">tunnel1_address</span>
+  <span class="p">}</span>
+  <span class="n">ipsec_config</span> <span class="p">{</span>
+    <span class="n">ipsec_pfs</span>      <span class="o">=</span> <span class="s">&quot;group2&quot;</span>
+    <span class="n">ipsec_enc_alg</span>  <span class="o">=</span> <span class="s">&quot;aes&quot;</span>
+    <span class="n">ipsec_auth_alg</span> <span class="o">=</span> <span class="s">&quot;sha1&quot;</span>
+    <span class="n">ipsec_lifetime</span> <span class="o">=</span> <span class="mi">86400</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">resource</span> <span class="s">&quot;alicloud_vpn_connection&quot;</span> <span class="s">&quot;ipsec_connection_2&quot;</span> <span class="p">{</span>
+  <span class="n">name</span>                <span class="o">=</span> <span class="s">&quot;IPSecConnection2&quot;</span>
+  <span class="n">vpn_gateway_id</span>      <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">customer_gateway_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_customer_gateway</span><span class="p">.</span><span class="n">aws_customer_gateway_2</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">local_subnet</span>        <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">.</span><span class="n">alicloud_vpc</span><span class="p">.</span><span class="n">cidr</span><span class="p">]</span>
+  <span class="n">remote_subnet</span>       <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">cidr</span><span class="p">]</span>
+  <span class="n">effect_immediately</span>  <span class="o">=</span> <span class="nb">true</span>
+  <span class="n">ike_config</span> <span class="p">{</span>
+    <span class="n">ike_auth_alg</span>  <span class="o">=</span> <span class="s">&quot;sha1&quot;</span>
+    <span class="n">ike_enc_alg</span>   <span class="o">=</span> <span class="s">&quot;aes&quot;</span>
+    <span class="n">ike_version</span>   <span class="o">=</span> <span class="s">&quot;ikev1&quot;</span>
+    <span class="n">ike_mode</span>      <span class="o">=</span> <span class="s">&quot;main&quot;</span>
+    <span class="n">ike_lifetime</span>  <span class="o">=</span> <span class="mi">86400</span>
+    <span class="n">psk</span>           <span class="o">=</span> <span class="n">aws_vpn_connection</span><span class="p">.</span><span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">tunnel2_preshared_key</span>
+    <span class="n">ike_pfs</span>       <span class="o">=</span> <span class="s">&quot;group2&quot;</span>
+    <span class="n">ike_local_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">internet_ip</span>
+    <span class="n">ike_remote_id</span> <span class="o">=</span> <span class="n">aws_vpn_connection</span><span class="p">.</span><span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">tunnel2_address</span>
+  <span class="p">}</span>
+  <span class="n">ipsec_config</span> <span class="p">{</span>
+    <span class="n">ipsec_pfs</span>      <span class="o">=</span> <span class="s">&quot;group2&quot;</span>
+    <span class="n">ipsec_enc_alg</span>  <span class="o">=</span> <span class="s">&quot;aes&quot;</span>
+    <span class="n">ipsec_auth_alg</span> <span class="o">=</span> <span class="s">&quot;sha1&quot;</span>
+    <span class="n">ipsec_lifetime</span> <span class="o">=</span> <span class="mi">86400</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>VPN Connection Route Entry</h3>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;alicloud_vpn_route_entry&quot;</span> <span class="s">&quot;alicloud_vpn_route_entry_1&quot;</span> <span class="p">{</span>
+  <span class="n">vpn_gateway_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">route_dest</span>     <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">cidr</span>
+  <span class="n">next_hop</span>       <span class="o">=</span> <span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">ipsec_connection_1</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">weight</span>         <span class="o">=</span> <span class="mi">0</span>
+  <span class="n">publish_vpc</span>    <span class="o">=</span> <span class="nb">true</span>
+<span class="p">}</span>
+
+<span class="n">resource</span> <span class="s">&quot;alicloud_vpn_route_entry&quot;</span> <span class="s">&quot;alicloud_vpn_route_entry_2&quot;</span> <span class="p">{</span>
+  <span class="n">vpn_gateway_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">route_dest</span>     <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">cidr</span>
+  <span class="n">next_hop</span>       <span class="o">=</span> <span class="n">alicloud_vpn_connection</span><span class="p">.</span><span class="n">ipsec_connection_2</span><span class="p">.</span><span class="n">id</span>
+  <span class="n">weight</span>         <span class="o">=</span> <span class="mi">100</span>
+  <span class="n">publish_vpc</span>    <span class="o">=</span> <span class="nb">true</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <div>

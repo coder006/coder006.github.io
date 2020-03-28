@@ -135,7 +135,7 @@ resource "aws_customer_gateway" "alicloud_vpn_gw" {
 
 ### VPN Connection
 
-![You Shall Not Pass](https://thumbs.gfycat.com/HilariousDigitalAkitainu-size_restricted.gif)
+![You Shall Not Pass](https://media.giphy.com/media/njYrp176NQsHS/giphy-downsized-large.gif)
 
 A VPN Connection resource in AWS creates 2 _Tunnels_ between your VPC and the remote network (Alicloud Network represented by `customer_gateway_id` in this case). AWS will create 2 tunnels for redundancy. In case one of the tunnels goes down, the traffic is automatically routed through the other tunnel
 ```c

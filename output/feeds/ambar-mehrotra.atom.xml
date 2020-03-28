@@ -171,8 +171,8 @@ Setting up a VPN connection mainly involves setting up the following components 
 
 
 &lt;h3&gt;VPN Connection&lt;/h3&gt;
-&lt;h1&gt;&lt;code&gt;effect_immediately&lt;/code&gt; parameter determines weather to delete a successfully negotiated IPsec tunnel and initiate a negotiation again&lt;/h1&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;resource&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;alicloud_vpn_connection&amp;quot;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;ipsec_connection_1&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cp"&gt;# `effect_immediately` parameter determines weather to delete a successfully negotiated IPsec tunnel and initiate a negotiation again&lt;/span&gt;
+&lt;span class="n"&gt;resource&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;alicloud_vpn_connection&amp;quot;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;ipsec_connection_1&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
   &lt;span class="n"&gt;name&lt;/span&gt;                &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;IPSecConnection1&amp;quot;&lt;/span&gt;
   &lt;span class="n"&gt;vpn_gateway_id&lt;/span&gt;      &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;alicloud_vpn_gateway&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;aws_vpn_gateway&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;
   &lt;span class="n"&gt;customer_gateway_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;alicloud_vpn_customer_gateway&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;aws_customer_gateway_1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;

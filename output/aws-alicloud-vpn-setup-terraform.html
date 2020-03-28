@@ -234,8 +234,8 @@ Setting up a VPN connection mainly involves setting up the following components 
 
 
 <h3>VPN Connection</h3>
-<h1><code>effect_immediately</code> parameter determines weather to delete a successfully negotiated IPsec tunnel and initiate a negotiation again</h1>
-<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;alicloud_vpn_connection&quot;</span> <span class="s">&quot;ipsec_connection_1&quot;</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><span class="cp"># `effect_immediately` parameter determines weather to delete a successfully negotiated IPsec tunnel and initiate a negotiation again</span>
+<span class="n">resource</span> <span class="s">&quot;alicloud_vpn_connection&quot;</span> <span class="s">&quot;ipsec_connection_1&quot;</span> <span class="p">{</span>
   <span class="n">name</span>                <span class="o">=</span> <span class="s">&quot;IPSecConnection1&quot;</span>
   <span class="n">vpn_gateway_id</span>      <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
   <span class="n">customer_gateway_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_customer_gateway</span><span class="p">.</span><span class="n">aws_customer_gateway_1</span><span class="p">.</span><span class="n">id</span>
@@ -486,8 +486,8 @@ Setting up a VPN connection mainly involves setting up the following components 
 
 
 <h3>VPN Connection</h3>
-<h1><code>effect_immediately</code> parameter determines weather to delete a successfully negotiated IPsec tunnel and initiate a negotiation again</h1>
-<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;alicloud_vpn_connection&quot;</span> <span class="s">&quot;ipsec_connection_1&quot;</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><span class="cp"># `effect_immediately` parameter determines weather to delete a successfully negotiated IPsec tunnel and initiate a negotiation again</span>
+<span class="n">resource</span> <span class="s">&quot;alicloud_vpn_connection&quot;</span> <span class="s">&quot;ipsec_connection_1&quot;</span> <span class="p">{</span>
   <span class="n">name</span>                <span class="o">=</span> <span class="s">&quot;IPSecConnection1&quot;</span>
   <span class="n">vpn_gateway_id</span>      <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
   <span class="n">customer_gateway_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_customer_gateway</span><span class="p">.</span><span class="n">aws_customer_gateway_1</span><span class="p">.</span><span class="n">id</span>

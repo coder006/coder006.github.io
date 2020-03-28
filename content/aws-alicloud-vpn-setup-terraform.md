@@ -191,9 +191,8 @@ resource "alicloud_vpn_customer_gateway" "aws_customer_gateway_2" {
 ```
 
 ### VPN Connection
-
-# `effect_immediately` parameter determines weather to delete a successfully negotiated IPsec tunnel and initiate a negotiation again
 ```c
+# `effect_immediately` parameter determines weather to delete a successfully negotiated IPsec tunnel and initiate a negotiation again
 resource "alicloud_vpn_connection" "ipsec_connection_1" {
   name                = "IPSecConnection1"
   vpn_gateway_id      = alicloud_vpn_gateway.aws_vpn_gateway.id

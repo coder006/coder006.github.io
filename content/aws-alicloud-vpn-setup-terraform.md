@@ -265,7 +265,7 @@ resource "alicloud_vpn_route_entry" "alicloud_vpn_route_entry_2" {
 }
 ```
 
-The link to the entire code can be found at the [tf-aws-alicloud-vpn](https://github.com/coder006/tf-aws-alicloud-vpn, "Github Repository")
+The link to the entire code can be found at the [tf-aws-alicloud-vpn](https://github.com/coder006/tf-aws-alicloud-vpn.git "Github Repository")
 
 
 Happy Coding! Cheers :)

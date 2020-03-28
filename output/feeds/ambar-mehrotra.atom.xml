@@ -244,5 +244,5 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;The link to the entire code can be found at the &lt;a href="https://github.com/coder006/tf-aws-alicloud-vpn," title="Github Repository"&gt;tf-aws-alicloud-vpn&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;The link to the entire code can be found at the &lt;a href="https://github.com/coder006/tf-aws-alicloud-vpn.git" title="Github Repository"&gt;tf-aws-alicloud-vpn&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Happy Coding! Cheers :)&lt;/p&gt;</content><category term="AWS"></category><category term="aws"></category><category term="alicloud"></category><category term="terraform"></category><category term="vpn"></category></entry></feed>

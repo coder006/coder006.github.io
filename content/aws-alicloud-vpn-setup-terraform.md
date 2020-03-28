@@ -20,7 +20,7 @@ Creating a VPN connection helps you securely access resources on one cloud provi
 
 VPN Setup
 ---------
-![Aws Alicloud VPN Architecture](https://yqintl.alicdn.com/8fd8b64f9e5bbcbf81ece59762745df9cd8ec533.png)
+![Aws Alicloud VPN Architecture](https://i.imgur.com/x3i3MC7.png)
 
 Setting up a VPN connection mainly involves setting up the following components in both AWS and Alicloud:
 

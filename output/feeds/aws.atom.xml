@@ -118,6 +118,7 @@ Setting up a VPN connection mainly involves setting up the following components 
 
 
 &lt;h3&gt;VPN Connection&lt;/h3&gt;
+&lt;p&gt;&lt;img alt="You Shall Not Pass" src="https://thumbs.gfycat.com/HilariousDigitalAkitainu-size_restricted.gif"&gt;&lt;/p&gt;
 &lt;p&gt;A VPN Connection resource in AWS creates 2 &lt;em&gt;Tunnels&lt;/em&gt; between your VPC and the remote network (Alicloud Network represented by &lt;code&gt;customer_gateway_id&lt;/code&gt; in this case). AWS will create 2 tunnels for redundancy. In case one of the tunnels goes down, the traffic is automatically routed through the other tunnel&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;resource&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;aws_vpn_connection&amp;quot;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;alicloud_vpn_connection&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
   &lt;span class="n"&gt;vpn_gateway_id&lt;/span&gt;      &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;aws_vpn_gateway&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;alicloud_vpn_gateway&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;

@@ -32,10 +32,10 @@ SOCIAL = (('email', 'mehrotraambar@gmail.com'),
 DEFAULT_PAGINATION = 10
 
 THEME = "themes/hyde"
-STATIC_PATHS = ['images']
+STATIC_PATHS = ['images', 'extra']
 PROFILE_IMAGE = "profile-picture.jpeg"
 EXTRA_PATH_METADATA = {
-    'images/favicon.ico': {'path': 'favicon.ico'}
+    'extra/favicon.ico': {'path': 'favicon.ico'}
 }
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True

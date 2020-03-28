@@ -71,8 +71,8 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 <p><img alt="Multi Cloud Architecture" src="https://www.simform.com/wp-content/uploads/2017/11/Blog-Diagram1.png" title="Multi Cloud Architecture"></p>
 <p>Creating a VPN connection helps you securely access resources on one cloud provider from another over an encrypted connection. A VPN connection helps you avoid the hassle of exposing public endpoints for each resource and then securing it. You can simply go ahead and whietelist a CIDR block across the VPCs and all your traffic in the given CIDR range will then be routed over this secure, encrypted connection.</p>
 <h2>VPN Setup</h2>
-<p><img alt="VPN Setup AWS and Alicloud" src="https://yqintl.alicdn.com/4d6a0fddff7f6499f7be0c01c022dbdd38cabd1e.jpeg">
-Setting up a VPN connection mainly involves setting up the following components in both AWS and Alicloud:</p>
+<p><img alt="Aws Alicloud VPN Architecture" src="https://yqintl.alicdn.com/8fd8b64f9e5bbcbf81ece59762745df9cd8ec533.png"></p>
+<p>Setting up a VPN connection mainly involves setting up the following components in both AWS and Alicloud:</p>
 <ul>
 <li>VPN Gateway</li>
 <li>Customer Gateway</li>
@@ -122,8 +122,6 @@ Setting up a VPN connection mainly involves setting up the following components 
 </pre></div>
 
 
-<p>This is how the architecture of our setup will roughly look like:
-<img alt="Aws Alicloud VPN Architecture" src="https://yqintl.alicdn.com/8fd8b64f9e5bbcbf81ece59762745df9cd8ec533.png"></p>
 <h3>Terraform Providers for AWS and Alicloud</h3>
 <div class="highlight"><pre><span></span><span class="n">provider</span> <span class="s">&quot;aws&quot;</span> <span class="p">{</span>
   <span class="n">region</span>  <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">region</span>
@@ -323,8 +321,8 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 <p><img alt="Multi Cloud Architecture" src="https://www.simform.com/wp-content/uploads/2017/11/Blog-Diagram1.png" title="Multi Cloud Architecture"></p>
 <p>Creating a VPN connection helps you securely access resources on one cloud provider from another over an encrypted connection. A VPN connection helps you avoid the hassle of exposing public endpoints for each resource and then securing it. You can simply go ahead and whietelist a CIDR block across the VPCs and all your traffic in the given CIDR range will then be routed over this secure, encrypted connection.</p>
 <h2>VPN Setup</h2>
-<p><img alt="VPN Setup AWS and Alicloud" src="https://yqintl.alicdn.com/4d6a0fddff7f6499f7be0c01c022dbdd38cabd1e.jpeg">
-Setting up a VPN connection mainly involves setting up the following components in both AWS and Alicloud:</p>
+<p><img alt="Aws Alicloud VPN Architecture" src="https://yqintl.alicdn.com/8fd8b64f9e5bbcbf81ece59762745df9cd8ec533.png"></p>
+<p>Setting up a VPN connection mainly involves setting up the following components in both AWS and Alicloud:</p>
 <ul>
 <li>VPN Gateway</li>
 <li>Customer Gateway</li>
@@ -374,8 +372,6 @@ Setting up a VPN connection mainly involves setting up the following components 
 </pre></div>
 
 
-<p>This is how the architecture of our setup will roughly look like:
-<img alt="Aws Alicloud VPN Architecture" src="https://yqintl.alicdn.com/8fd8b64f9e5bbcbf81ece59762745df9cd8ec533.png"></p>
 <h3>Terraform Providers for AWS and Alicloud</h3>
 <div class="highlight"><pre><span></span><span class="n">provider</span> <span class="s">&quot;aws&quot;</span> <span class="p">{</span>
   <span class="n">region</span>  <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">region</span>

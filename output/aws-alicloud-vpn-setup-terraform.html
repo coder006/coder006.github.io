@@ -71,7 +71,8 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 <p><img alt="Multi Cloud Architecture" src="https://www.simform.com/wp-content/uploads/2017/11/Blog-Diagram1.png" title="Multi Cloud Architecture"></p>
 <p>Creating a VPN connection helps you securely access resources on one cloud provider from another over an encrypted connection. A VPN connection helps you avoid the hassle of exposing public endpoints for each resource and then securing it. You can simply go ahead and whietelist a CIDR block across the VPCs and all your traffic in the given CIDR range will then be routed over this secure, encrypted connection.</p>
 <h2>VPN Setup</h2>
-<p>Setting up a VPN connection mainly involves setting up the following components in both AWS and Alicloud:</p>
+<p><img alt="VPN Setup AWS and Alicloud" src="https://yqintl.alicdn.com/4d6a0fddff7f6499f7be0c01c022dbdd38cabd1e.jpeg">
+Setting up a VPN connection mainly involves setting up the following components in both AWS and Alicloud:</p>
 <ul>
 <li>VPN Gateway</li>
 <li>Customer Gateway</li>
@@ -121,6 +122,8 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 </pre></div>
 
 
+<p>This is how the architecture of our setup will roughly look like:
+<img alt="Aws Alicloud VPN Architecture" src="https://yqintl.alicdn.com/8fd8b64f9e5bbcbf81ece59762745df9cd8ec533.png"></p>
 <h3>Terraform Providers for AWS and Alicloud</h3>
 <div class="highlight"><pre><span></span><span class="n">provider</span> <span class="s">&quot;aws&quot;</span> <span class="p">{</span>
   <span class="n">region</span>  <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">region</span>
@@ -230,6 +233,7 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 
 
 <h3>VPN Connection</h3>
+<h1><code>effect_immediately</code> parameter determines weather to delete a successfully negotiated IPsec tunnel and initiate a negotiation again</h1>
 <div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;alicloud_vpn_connection&quot;</span> <span class="s">&quot;ipsec_connection_1&quot;</span> <span class="p">{</span>
   <span class="n">name</span>                <span class="o">=</span> <span class="s">&quot;IPSecConnection1&quot;</span>
   <span class="n">vpn_gateway_id</span>      <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
@@ -284,6 +288,7 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 </pre></div>
 
 
+<p>Although, only a few of the above parameters are mandatory for making the request, have put in the exhaustive list just to give you guys an idea of what the parameters are.</p>
 <h3>VPN Connection Route Entry</h3>
 <div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;alicloud_vpn_route_entry&quot;</span> <span class="s">&quot;alicloud_vpn_route_entry_1&quot;</span> <span class="p">{</span>
   <span class="n">vpn_gateway_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
@@ -301,6 +306,10 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
   <span class="n">publish_vpc</span>    <span class="o">=</span> <span class="nb">true</span>
 <span class="p">}</span>
 </pre></div>
+
+
+<p>The link to the entire code can be found at the <a href="https://github.com/coder006/tf-aws-alicloud-vpn," title="Github Repository">tf-aws-alicloud-vpn</a></p>
+<p>Happy Coding! Cheers :)</p>
  -->
 </div>
 <div style="text-align: justify;">
@@ -313,7 +322,8 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 <p><img alt="Multi Cloud Architecture" src="https://www.simform.com/wp-content/uploads/2017/11/Blog-Diagram1.png" title="Multi Cloud Architecture"></p>
 <p>Creating a VPN connection helps you securely access resources on one cloud provider from another over an encrypted connection. A VPN connection helps you avoid the hassle of exposing public endpoints for each resource and then securing it. You can simply go ahead and whietelist a CIDR block across the VPCs and all your traffic in the given CIDR range will then be routed over this secure, encrypted connection.</p>
 <h2>VPN Setup</h2>
-<p>Setting up a VPN connection mainly involves setting up the following components in both AWS and Alicloud:</p>
+<p><img alt="VPN Setup AWS and Alicloud" src="https://yqintl.alicdn.com/4d6a0fddff7f6499f7be0c01c022dbdd38cabd1e.jpeg">
+Setting up a VPN connection mainly involves setting up the following components in both AWS and Alicloud:</p>
 <ul>
 <li>VPN Gateway</li>
 <li>Customer Gateway</li>
@@ -363,6 +373,8 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 </pre></div>
 
 
+<p>This is how the architecture of our setup will roughly look like:
+<img alt="Aws Alicloud VPN Architecture" src="https://yqintl.alicdn.com/8fd8b64f9e5bbcbf81ece59762745df9cd8ec533.png"></p>
 <h3>Terraform Providers for AWS and Alicloud</h3>
 <div class="highlight"><pre><span></span><span class="n">provider</span> <span class="s">&quot;aws&quot;</span> <span class="p">{</span>
   <span class="n">region</span>  <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">aws_vpc</span><span class="p">.</span><span class="n">region</span>
@@ -472,6 +484,7 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 
 
 <h3>VPN Connection</h3>
+<h1><code>effect_immediately</code> parameter determines weather to delete a successfully negotiated IPsec tunnel and initiate a negotiation again</h1>
 <div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;alicloud_vpn_connection&quot;</span> <span class="s">&quot;ipsec_connection_1&quot;</span> <span class="p">{</span>
   <span class="n">name</span>                <span class="o">=</span> <span class="s">&quot;IPSecConnection1&quot;</span>
   <span class="n">vpn_gateway_id</span>      <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
@@ -526,6 +539,7 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
 </pre></div>
 
 
+<p>Although, only a few of the above parameters are mandatory for making the request, have put in the exhaustive list just to give you guys an idea of what the parameters are.</p>
 <h3>VPN Connection Route Entry</h3>
 <div class="highlight"><pre><span></span><span class="n">resource</span> <span class="s">&quot;alicloud_vpn_route_entry&quot;</span> <span class="s">&quot;alicloud_vpn_route_entry_1&quot;</span> <span class="p">{</span>
   <span class="n">vpn_gateway_id</span> <span class="o">=</span> <span class="n">alicloud_vpn_gateway</span><span class="p">.</span><span class="n">aws_vpn_gateway</span><span class="p">.</span><span class="n">id</span>
@@ -543,6 +557,10 @@ This is not a guide on the internals of a Virtual Private Network. Rather, this 
   <span class="n">publish_vpc</span>    <span class="o">=</span> <span class="nb">true</span>
 <span class="p">}</span>
 </pre></div>
+
+
+<p>The link to the entire code can be found at the <a href="https://github.com/coder006/tf-aws-alicloud-vpn," title="Github Repository">tf-aws-alicloud-vpn</a></p>
+<p>Happy Coding! Cheers :)</p>
 </div>
 <div>
 </div>

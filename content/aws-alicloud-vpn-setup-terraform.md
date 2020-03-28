@@ -20,6 +20,7 @@ Creating a VPN connection helps you securely access resources on one cloud provi
 
 VPN Setup
 ---------
+![VPN Setup AWS and Alicloud](https://yqintl.alicdn.com/4d6a0fddff7f6499f7be0c01c022dbdd38cabd1e.jpeg)
 Setting up a VPN connection mainly involves setting up the following components in both AWS and Alicloud:
 
 - VPN Gateway
@@ -70,6 +71,9 @@ variable "alicloud_vpc" {
   }
 }
 ```
+
+This is how the architecture of our setup will roughly look like:
+![Aws Alicloud VPN Architecture](https://yqintl.alicdn.com/8fd8b64f9e5bbcbf81ece59762745df9cd8ec533.png)
 
 ### Terraform Providers for AWS and Alicloud
 ```c
@@ -184,6 +188,8 @@ resource "alicloud_vpn_customer_gateway" "aws_customer_gateway_2" {
 ```
 
 ### VPN Connection
+
+# `effect_immediately` parameter determines weather to delete a successfully negotiated IPsec tunnel and initiate a negotiation again
 ```c
 resource "alicloud_vpn_connection" "ipsec_connection_1" {
   name                = "IPSecConnection1"
@@ -238,6 +244,8 @@ resource "alicloud_vpn_connection" "ipsec_connection_2" {
 }
 ```
 
+Although, only a few of the above parameters are mandatory for making the request, have put in the exhaustive list just to give you guys an idea of what the parameters are.
+
 ### VPN Connection Route Entry
 ```c
 resource "alicloud_vpn_route_entry" "alicloud_vpn_route_entry_1" {
@@ -256,3 +264,8 @@ resource "alicloud_vpn_route_entry" "alicloud_vpn_route_entry_2" {
   publish_vpc    = true
 }
 ```
+
+The link to the entire code can be found at the [tf-aws-alicloud-vpn](https://github.com/coder006/tf-aws-alicloud-vpn, "Github Repository")
+
+
+Happy Coding! Cheers :)

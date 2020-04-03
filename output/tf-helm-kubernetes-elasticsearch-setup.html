@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns#">
+	<head>
+		<link rel="favicon" href="https://ambar.dev/images/favicon.ico" />
+		<link href="http://gmpg.org/xfn/11" rel="profile">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+		<!-- Metadata -->
+	<meta name="description" content="">
+	<meta property="og:description" content="">
+	<meta property="og:title" content="Installing Elasticsearch inside a Kubernetes cluster with Helm and Terraform" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://ambar.dev/tf-helm-kubernetes-elasticsearch-setup.html" />
+		<meta property="og:image" content="https://ambar.dev/images/profile-picture.jpeg" />
+
+		<!-- Enable responsiveness on mobile devices-->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+		<title>All Things Connected</title>
+
+		<!-- CSS -->
+		<link href="//fonts.googleapis.com/" rel="dns-prefetch">
+		<link href="//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic|Abril+Fatface|PT+Sans:400,400italic,700&amp;subset=latin,latin-ext" rel="stylesheet">
+
+		<link rel="stylesheet" href="https://ambar.dev/theme/css/poole.css" />
+		<link rel="stylesheet" href="https://ambar.dev/theme/css/hyde.css" />
+		<link rel="stylesheet" href="https://ambar.dev/theme/css/syntax.css" />
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+		<!-- RSS -->
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+	</head>
+
+	<body class="theme-base-0d">
+<div class="sidebar">
+	<div class="container sidebar-sticky">
+		<div class="sidebar-about">
+
+			<h1>
+				<a href="/">
+					<img class="profile-picture" src="https://ambar.dev/images/profile-picture.jpeg">
+					All Things Connected
+				</a>
+			</h1>
+			<p class="lead"></p>
+			<p class="lead"> </p>
+			<p></p>
+		</div>
+		<div class="sidebar-nav">
+			<a class="sidebar-nav-item" href="mailto:mehrotraambar@gmail.com">
+				<i class="fa fa-envelope"></i>
+			</a>
+			<a class="sidebar-nav-item" href="https://twitter.com/decoder006" target="_blank">
+				<i class="fa fa-twitter"></i>
+			</a>
+			<a class="sidebar-nav-item" href="https://github.com/coder006" target="_blank">
+				<i class="fa fa-github"></i>
+			</a>
+		</div>
+	</div>
+</div>		<div class="content container">
+<div class="post">
+	<h1 class="post-title">Installing Elasticsearch inside a Kubernetes cluster with Helm and Terraform</h1>
+	<span class="post-date">Thu 02 April 2020</span>
+	<!-- <p>Github Repository: <a href="https://github.com/coder006/tf-helm-kubernetes-elasticsearch.git" title="Github Repository">tf-aws-alicloud-vpn</a></p>
+<blockquote>
+<p><strong><em>Note</em></strong>:
+This guide uses Terraform for making API calls and state management. If you have helm installed on your machine, you can use that instead for installing the chart.</p>
+</blockquote>
+<h2>What is Elasticsearch?</h2>
+<p>According to the Elasticsearch website:</p>
+<blockquote>
+<p>Elasticsearch is a distributed, open source search and analytics engine for all types of data, including textual, numerical, geospatial, structured, and unstructured.</p>
+</blockquote>
+<p>Elasticsearch is generally used as the underlying engine for platforms that perform complex text search, logging, or real-time advanced analytics operations. The ELK stack (Elasticsearch, Logstash, and Kibana) has also become the de facto standard when it comes to logging and it's visualization in container environments.</p>
+<h2>Architecture</h2>
+<p>Before we move forward, let us take a look at the basic architecture of Elasticsearch:</p>
+<p><img alt="Elasticsearch Nodes" src="https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/images/za-2-az.png" title="Elasticsearch Cluster"></p>
+<p>The above is an overview of a basic <strong>Elasticsearch Cluster</strong>. As you can see, the cluster is divided into several nodes. A <strong>node</strong> is a server (physical or virtual) that stores some data and is a part of the elasticsearch cluster. A <strong>cluster</strong>, on the other hand, is a collection of several nodes that together form the cluster. Every node in turn can hold multiple shards from one or multiple indices. Different kinds of nodes available in Elasticsearch are <em>Master-eligible node</em>, <em>Data node</em>, <em>Ingest node</em>, and <em>Machine learning node</em>(Not availble in the OSS version). In this article, we will only be looking at the master and data nodes for the sake of simplicity.</p>
+<h3>Master-eligible node</h3>
+<p>A node that has <code>node.master</code> flag set to <code>true</code>, which makes it eligible to be elected as the <em>master node</em> which controls the cluster. One of the <em>master-eligible</em> nodes is elected as the <strong>Master</strong> via the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-discovery.html">master election process</a>. Following are few of the functions performed by the <em>master node</em>:</p>
+<ul>
+<li>Creating or deleting an index</li>
+<li>Tracking which nodes are part of the cluster</li>
+<li>Deciding which shards to allocate to which nodes</li>
+</ul>
+<h3>Data node</h3>
+<p>A node that has <code>node.data</code> flag set to <code>true</code>. Data nodes hold the shards that contain the documents you have indexed. These nodes perform several operations that are IO, memory, and CPU extensive in nature. Some of the functions performed by <em>data nodes</em> are:</p>
+<ul>
+<li>Data related operations like CRUD</li>
+<li>Search</li>
+<li>Aggregations</li>
+</ul>
+<hr>
+<h2>Terminology</h2>
+<p>Now that we have a basic idea about the Elasticsearch Architecture, let us see how to Elasticsearch inside a Kubernetes Cluster using Helm and Terraform. Before moving forward, let us go through some basic terminology.</p>
+<p><strong>Kubernetes</strong>: Kubernetes is a portable, extensible, open-source platform for managing containerized workloads and services, that facilitates both declarative configuration and automation</p>
+<p><strong>Helm</strong>: Helm is an application package manager running atop Kubernetes. It allows describing the application structure through convenient helm-charts and managing it with simple commands</p>
+<p><strong>Terraform</strong>: Terraform is a tool for building, changing, and versioning infrastructure safely and efficiently. Terraform can manage existing and popular service providers as well as custom in-house solutions</p>
+<hr>
+<h2>Installation</h2>
+<p>First, let us describe the variables and the default values needed for setting up the Elasticsearch Cluster:</p>
+<h3>Default Values:</h3>
+<div class="highlight"><pre><span></span><span class="n">variable</span> <span class="s">&quot;elasticsearch&quot;</span> <span class="p">{</span>
+  <span class="n">type</span> <span class="o">=</span> <span class="n">object</span><span class="p">({</span>
+    <span class="n">master_node</span> <span class="o">=</span> <span class="n">object</span><span class="p">({</span>
+      <span class="n">volume_size</span>   <span class="o">=</span> <span class="n">number</span>
+      <span class="n">cpu</span>           <span class="o">=</span> <span class="n">number</span>
+      <span class="n">memory</span>        <span class="o">=</span> <span class="n">number</span>
+    <span class="p">})</span>
+
+    <span class="n">data_node</span> <span class="o">=</span> <span class="n">object</span><span class="p">({</span>
+      <span class="n">volume_size</span>   <span class="o">=</span> <span class="n">number</span>
+      <span class="n">cpu</span>           <span class="o">=</span> <span class="n">number</span>
+      <span class="n">memory</span>        <span class="o">=</span> <span class="n">number</span>
+    <span class="p">})</span>
+  <span class="p">})</span>
+
+  <span class="k">default</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">master_node</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">volume_size</span>   <span class="o">=</span> <span class="mi">20</span>
+      <span class="n">cpu</span>           <span class="o">=</span> <span class="mi">1</span>
+      <span class="n">memory</span>        <span class="o">=</span> <span class="mf">1.5</span>
+    <span class="p">}</span>
+
+    <span class="n">data_node</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">volume_size</span>   <span class="o">=</span> <span class="mi">20</span>
+      <span class="n">cpu</span>           <span class="o">=</span> <span class="mi">1</span>
+      <span class="n">memory</span>        <span class="o">=</span> <span class="mf">1.5</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">variable</span> <span class="s">&quot;kubeconfig_file_path&quot;</span> <span class="p">{</span>
+  <span class="n">type</span>      <span class="o">=</span> <span class="n">string</span>
+  <span class="k">default</span>   <span class="o">=</span> <span class="s">&quot;/my/file/path&quot;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<blockquote>
+<p>For the sake of simplicity, I will assume that you have a working helm installtion. Although, you can still go over to the <a href="https://github.com/coder006/tf-helm-kubernetes-elasticsearch.git">Github Repository</a> to take a look at how to install helm and tiller onto your Kubernetes cluster using Terraform.</p>
+</blockquote>
+<h3>Terraform Helm Setup</h3>
+<p>This step involves declaring a helm provider and the elasticsearch helm repository to pull the helm chart from</p>
+<div class="highlight"><pre><span></span><span class="n">provider</span> <span class="s">&quot;helm&quot;</span> <span class="p">{</span>
+  <span class="n">kubernetes</span> <span class="p">{</span>
+    <span class="n">config_path</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">kubeconfig_file_path</span>
+  <span class="p">}</span>
+  <span class="n">version</span> <span class="o">=</span> <span class="s">&quot;~&gt; 0.10.4&quot;</span>
+  <span class="n">service_account</span> <span class="o">=</span> <span class="n">kubernetes_service_account</span><span class="p">.</span><span class="n">tiller</span><span class="p">.</span><span class="n">metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">name</span>
+  <span class="n">install_tiller</span> <span class="o">=</span> <span class="nb">true</span>
+<span class="p">}</span>
+
+<span class="n">data</span> <span class="s">&quot;helm_repository&quot;</span> <span class="s">&quot;stable&quot;</span> <span class="p">{</span>
+  <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;elastic&quot;</span>
+  <span class="n">url</span>  <span class="o">=</span> <span class="s">&quot;https://helm.elastic.co&quot;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>Setting up Master Eligible and Data nodes</h3>
+<p>Let us take a look at some of the important fields used in the following helm release resources:</p>
+<ul>
+<li><code>clusterName</code> - This refers to the name of the elasticsearch cluster and has the default value of <code>elasticsearch</code>. Because elasticsearch looks at the cluster name when joining a new node, it is better to set the value of this field to something else.</li>
+<li><code>nodeGroup</code> - This tells the elasticsearch helm chart whether the node is a master eligible node or a data node</li>
+<li><code>storageClassName</code> - The kubernetes storage class that you want to use for provisioning the attached volumes. You can skip this field if your cloud provider has a default storageclass object defined</li>
+<li><code>cpu</code>: The number of CPU cores you want to give to the elasticsearch pod</li>
+<li><code>memory</code>: The amount of memory you want to allocate to the elasticsearch pod</li>
+</ul>
+<h4>Master Eligible Nodes</h4>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="n">helm_release</span> <span class="s">&quot;elasticsearch_master&quot;</span> <span class="p">{</span>
+  <span class="n">name</span>       <span class="o">=</span> <span class="s">&quot;elasticsearch-master&quot;</span>
+  <span class="n">repository</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">helm_repository</span><span class="p">.</span><span class="n">stable</span><span class="p">.</span><span class="n">metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">name</span>
+  <span class="n">chart</span>      <span class="o">=</span> <span class="s">&quot;elasticsearch&quot;</span>
+  <span class="n">version</span>    <span class="o">=</span> <span class="s">&quot;7.6.1&quot;</span>
+  <span class="n">timeout</span>    <span class="o">=</span> <span class="mi">900</span>
+
+  <span class="n">values</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="o">&lt;&lt;</span><span class="n">RAW_VALUES</span>
+<span class="nl">volumeClaimTemplate</span><span class="p">:</span>
+  <span class="nl">accessModes</span><span class="p">:</span> <span class="p">[</span> <span class="s">&quot;ReadWriteOnce&quot;</span> <span class="p">]</span>
+  <span class="nl">storageClassName</span><span class="p">:</span> <span class="s">&quot;my-storage-class&quot;</span>
+  <span class="nl">resources</span><span class="p">:</span>
+    <span class="nl">requests</span><span class="p">:</span>
+      <span class="nl">storage</span><span class="p">:</span> <span class="err">$</span><span class="p">{</span><span class="n">var</span><span class="p">.</span><span class="n">elasticsearch</span><span class="p">.</span><span class="n">master_node</span><span class="p">.</span><span class="n">volume_size</span><span class="p">}</span><span class="n">Gi</span>
+<span class="nl">resources</span><span class="p">:</span>
+  <span class="nl">requests</span><span class="p">:</span>
+    <span class="nl">cpu</span><span class="p">:</span> <span class="err">$</span><span class="p">{</span><span class="n">var</span><span class="p">.</span><span class="n">elasticsearch</span><span class="p">.</span><span class="n">master_node</span><span class="p">.</span><span class="n">cpu</span><span class="p">}</span>
+    <span class="nl">memory</span><span class="p">:</span> <span class="err">$</span><span class="p">{</span><span class="n">var</span><span class="p">.</span><span class="n">elasticsearch</span><span class="p">.</span><span class="n">data_node</span><span class="p">.</span><span class="n">memory</span><span class="p">}</span><span class="n">Gi</span>
+<span class="nl">roles</span><span class="p">:</span>
+  <span class="nl">master</span><span class="p">:</span> <span class="s">&quot;true&quot;</span>
+  <span class="nl">ingest</span><span class="p">:</span> <span class="s">&quot;false&quot;</span>
+  <span class="nl">data</span><span class="p">:</span> <span class="s">&quot;false&quot;</span>
+<span class="n">RAW_VALUES</span>
+  <span class="p">]</span>
+
+  <span class="n">set</span> <span class="p">{</span>
+    <span class="n">name</span>  <span class="o">=</span> <span class="s">&quot;imageTag&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;7.6.2&quot;</span>
+  <span class="p">}</span>
+
+  <span class="n">set</span> <span class="p">{</span>
+    <span class="n">name</span>  <span class="o">=</span> <span class="s">&quot;clusterName&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;elasticsearch-cluster&quot;</span>
+  <span class="p">}</span>
+
+  <span class="n">set</span> <span class="p">{</span>
+    <span class="n">name</span>  <span class="o">=</span> <span class="s">&quot;nodeGroup&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;master&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4>Data Nodes</h4>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="n">helm_release</span> <span class="s">&quot;elasticsearch_data&quot;</span> <span class="p">{</span>
+  <span class="n">name</span>       <span class="o">=</span> <span class="s">&quot;elasticsearch-data&quot;</span>
+  <span class="n">repository</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">helm_repository</span><span class="p">.</span><span class="n">stable</span><span class="p">.</span><span class="n">metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">name</span>
+  <span class="n">chart</span>      <span class="o">=</span> <span class="s">&quot;elasticsearch&quot;</span>
+  <span class="n">version</span>    <span class="o">=</span> <span class="s">&quot;7.6.1&quot;</span>
+  <span class="n">timeout</span>    <span class="o">=</span> <span class="mi">900</span>
+
+  <span class="n">values</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="o">&lt;&lt;</span><span class="n">RAW_VALUES</span>
+<span class="nl">volumeClaimTemplate</span><span class="p">:</span>
+  <span class="nl">accessModes</span><span class="p">:</span> <span class="p">[</span> <span class="s">&quot;ReadWriteOnce&quot;</span> <span class="p">]</span>
+  <span class="nl">storageClassName</span><span class="p">:</span> <span class="s">&quot;my-storage-class&quot;</span>
+  <span class="nl">resources</span><span class="p">:</span>
+    <span class="nl">requests</span><span class="p">:</span>
+      <span class="nl">storage</span><span class="p">:</span> <span class="err">$</span><span class="p">{</span><span class="n">var</span><span class="p">.</span><span class="n">elasticsearch</span><span class="p">.</span><span class="n">data_node</span><span class="p">.</span><span class="n">volume_size</span><span class="p">}</span><span class="n">Gi</span>
+<span class="nl">resources</span><span class="p">:</span>
+  <span class="nl">requests</span><span class="p">:</span>
+    <span class="nl">cpu</span><span class="p">:</span> <span class="err">$</span><span class="p">{</span><span class="n">var</span><span class="p">.</span><span class="n">elasticsearch</span><span class="p">.</span><span class="n">data_node</span><span class="p">.</span><span class="n">cpu</span><span class="p">}</span>
+    <span class="nl">memory</span><span class="p">:</span> <span class="err">$</span><span class="p">{</span><span class="n">var</span><span class="p">.</span><span class="n">elasticsearch</span><span class="p">.</span><span class="n">data_node</span><span class="p">.</span><span class="n">memory</span><span class="p">}</span><span class="n">Gi</span>
+<span class="nl">roles</span><span class="p">:</span>
+  <span class="nl">master</span><span class="p">:</span> <span class="s">&quot;false&quot;</span>
+  <span class="nl">ingest</span><span class="p">:</span> <span class="s">&quot;true&quot;</span>
+  <span class="nl">data</span><span class="p">:</span> <span class="s">&quot;true&quot;</span>
+<span class="n">RAW_VALUES</span>
+  <span class="p">]</span>
+
+  <span class="n">set</span> <span class="p">{</span>
+    <span class="n">name</span>  <span class="o">=</span> <span class="s">&quot;imageTag&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;7.6.2&quot;</span>
+  <span class="p">}</span>
+
+  <span class="n">set</span> <span class="p">{</span>
+    <span class="n">name</span>  <span class="o">=</span> <span class="s">&quot;clusterName&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;elasticsearch-cluster&quot;</span>
+  <span class="p">}</span>
+
+  <span class="n">set</span> <span class="p">{</span>
+    <span class="n">name</span>  <span class="o">=</span> <span class="s">&quot;nodeGroup&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;data&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Happy Coding! Cheers :)</p>
+ -->
+</div>
+<div style="text-align: justify;">
+	<p>Github Repository: <a href="https://github.com/coder006/tf-helm-kubernetes-elasticsearch.git" title="Github Repository">tf-aws-alicloud-vpn</a></p>
+<blockquote>
+<p><strong><em>Note</em></strong>:
+This guide uses Terraform for making API calls and state management. If you have helm installed on your machine, you can use that instead for installing the chart.</p>
+</blockquote>
+<h2>What is Elasticsearch?</h2>
+<p>According to the Elasticsearch website:</p>
+<blockquote>
+<p>Elasticsearch is a distributed, open source search and analytics engine for all types of data, including textual, numerical, geospatial, structured, and unstructured.</p>
+</blockquote>
+<p>Elasticsearch is generally used as the underlying engine for platforms that perform complex text search, logging, or real-time advanced analytics operations. The ELK stack (Elasticsearch, Logstash, and Kibana) has also become the de facto standard when it comes to logging and it's visualization in container environments.</p>
+<h2>Architecture</h2>
+<p>Before we move forward, let us take a look at the basic architecture of Elasticsearch:</p>
+<p><img alt="Elasticsearch Nodes" src="https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/images/za-2-az.png" title="Elasticsearch Cluster"></p>
+<p>The above is an overview of a basic <strong>Elasticsearch Cluster</strong>. As you can see, the cluster is divided into several nodes. A <strong>node</strong> is a server (physical or virtual) that stores some data and is a part of the elasticsearch cluster. A <strong>cluster</strong>, on the other hand, is a collection of several nodes that together form the cluster. Every node in turn can hold multiple shards from one or multiple indices. Different kinds of nodes available in Elasticsearch are <em>Master-eligible node</em>, <em>Data node</em>, <em>Ingest node</em>, and <em>Machine learning node</em>(Not availble in the OSS version). In this article, we will only be looking at the master and data nodes for the sake of simplicity.</p>
+<h3>Master-eligible node</h3>
+<p>A node that has <code>node.master</code> flag set to <code>true</code>, which makes it eligible to be elected as the <em>master node</em> which controls the cluster. One of the <em>master-eligible</em> nodes is elected as the <strong>Master</strong> via the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-discovery.html">master election process</a>. Following are few of the functions performed by the <em>master node</em>:</p>
+<ul>
+<li>Creating or deleting an index</li>
+<li>Tracking which nodes are part of the cluster</li>
+<li>Deciding which shards to allocate to which nodes</li>
+</ul>
+<h3>Data node</h3>
+<p>A node that has <code>node.data</code> flag set to <code>true</code>. Data nodes hold the shards that contain the documents you have indexed. These nodes perform several operations that are IO, memory, and CPU extensive in nature. Some of the functions performed by <em>data nodes</em> are:</p>
+<ul>
+<li>Data related operations like CRUD</li>
+<li>Search</li>
+<li>Aggregations</li>
+</ul>
+<hr>
+<h2>Terminology</h2>
+<p>Now that we have a basic idea about the Elasticsearch Architecture, let us see how to Elasticsearch inside a Kubernetes Cluster using Helm and Terraform. Before moving forward, let us go through some basic terminology.</p>
+<p><strong>Kubernetes</strong>: Kubernetes is a portable, extensible, open-source platform for managing containerized workloads and services, that facilitates both declarative configuration and automation</p>
+<p><strong>Helm</strong>: Helm is an application package manager running atop Kubernetes. It allows describing the application structure through convenient helm-charts and managing it with simple commands</p>
+<p><strong>Terraform</strong>: Terraform is a tool for building, changing, and versioning infrastructure safely and efficiently. Terraform can manage existing and popular service providers as well as custom in-house solutions</p>
+<hr>
+<h2>Installation</h2>
+<p>First, let us describe the variables and the default values needed for setting up the Elasticsearch Cluster:</p>
+<h3>Default Values:</h3>
+<div class="highlight"><pre><span></span><span class="n">variable</span> <span class="s">&quot;elasticsearch&quot;</span> <span class="p">{</span>
+  <span class="n">type</span> <span class="o">=</span> <span class="n">object</span><span class="p">({</span>
+    <span class="n">master_node</span> <span class="o">=</span> <span class="n">object</span><span class="p">({</span>
+      <span class="n">volume_size</span>   <span class="o">=</span> <span class="n">number</span>
+      <span class="n">cpu</span>           <span class="o">=</span> <span class="n">number</span>
+      <span class="n">memory</span>        <span class="o">=</span> <span class="n">number</span>
+    <span class="p">})</span>
+
+    <span class="n">data_node</span> <span class="o">=</span> <span class="n">object</span><span class="p">({</span>
+      <span class="n">volume_size</span>   <span class="o">=</span> <span class="n">number</span>
+      <span class="n">cpu</span>           <span class="o">=</span> <span class="n">number</span>
+      <span class="n">memory</span>        <span class="o">=</span> <span class="n">number</span>
+    <span class="p">})</span>
+  <span class="p">})</span>
+
+  <span class="k">default</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">master_node</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">volume_size</span>   <span class="o">=</span> <span class="mi">20</span>
+      <span class="n">cpu</span>           <span class="o">=</span> <span class="mi">1</span>
+      <span class="n">memory</span>        <span class="o">=</span> <span class="mf">1.5</span>
+    <span class="p">}</span>
+
+    <span class="n">data_node</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="n">volume_size</span>   <span class="o">=</span> <span class="mi">20</span>
+      <span class="n">cpu</span>           <span class="o">=</span> <span class="mi">1</span>
+      <span class="n">memory</span>        <span class="o">=</span> <span class="mf">1.5</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">variable</span> <span class="s">&quot;kubeconfig_file_path&quot;</span> <span class="p">{</span>
+  <span class="n">type</span>      <span class="o">=</span> <span class="n">string</span>
+  <span class="k">default</span>   <span class="o">=</span> <span class="s">&quot;/my/file/path&quot;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<blockquote>
+<p>For the sake of simplicity, I will assume that you have a working helm installtion. Although, you can still go over to the <a href="https://github.com/coder006/tf-helm-kubernetes-elasticsearch.git">Github Repository</a> to take a look at how to install helm and tiller onto your Kubernetes cluster using Terraform.</p>
+</blockquote>
+<h3>Terraform Helm Setup</h3>
+<p>This step involves declaring a helm provider and the elasticsearch helm repository to pull the helm chart from</p>
+<div class="highlight"><pre><span></span><span class="n">provider</span> <span class="s">&quot;helm&quot;</span> <span class="p">{</span>
+  <span class="n">kubernetes</span> <span class="p">{</span>
+    <span class="n">config_path</span> <span class="o">=</span> <span class="n">var</span><span class="p">.</span><span class="n">kubeconfig_file_path</span>
+  <span class="p">}</span>
+  <span class="n">version</span> <span class="o">=</span> <span class="s">&quot;~&gt; 0.10.4&quot;</span>
+  <span class="n">service_account</span> <span class="o">=</span> <span class="n">kubernetes_service_account</span><span class="p">.</span><span class="n">tiller</span><span class="p">.</span><span class="n">metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">name</span>
+  <span class="n">install_tiller</span> <span class="o">=</span> <span class="nb">true</span>
+<span class="p">}</span>
+
+<span class="n">data</span> <span class="s">&quot;helm_repository&quot;</span> <span class="s">&quot;stable&quot;</span> <span class="p">{</span>
+  <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;elastic&quot;</span>
+  <span class="n">url</span>  <span class="o">=</span> <span class="s">&quot;https://helm.elastic.co&quot;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>Setting up Master Eligible and Data nodes</h3>
+<p>Let us take a look at some of the important fields used in the following helm release resources:</p>
+<ul>
+<li><code>clusterName</code> - This refers to the name of the elasticsearch cluster and has the default value of <code>elasticsearch</code>. Because elasticsearch looks at the cluster name when joining a new node, it is better to set the value of this field to something else.</li>
+<li><code>nodeGroup</code> - This tells the elasticsearch helm chart whether the node is a master eligible node or a data node</li>
+<li><code>storageClassName</code> - The kubernetes storage class that you want to use for provisioning the attached volumes. You can skip this field if your cloud provider has a default storageclass object defined</li>
+<li><code>cpu</code>: The number of CPU cores you want to give to the elasticsearch pod</li>
+<li><code>memory</code>: The amount of memory you want to allocate to the elasticsearch pod</li>
+</ul>
+<h4>Master Eligible Nodes</h4>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="n">helm_release</span> <span class="s">&quot;elasticsearch_master&quot;</span> <span class="p">{</span>
+  <span class="n">name</span>       <span class="o">=</span> <span class="s">&quot;elasticsearch-master&quot;</span>
+  <span class="n">repository</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">helm_repository</span><span class="p">.</span><span class="n">stable</span><span class="p">.</span><span class="n">metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">name</span>
+  <span class="n">chart</span>      <span class="o">=</span> <span class="s">&quot;elasticsearch&quot;</span>
+  <span class="n">version</span>    <span class="o">=</span> <span class="s">&quot;7.6.1&quot;</span>
+  <span class="n">timeout</span>    <span class="o">=</span> <span class="mi">900</span>
+
+  <span class="n">values</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="o">&lt;&lt;</span><span class="n">RAW_VALUES</span>
+<span class="nl">volumeClaimTemplate</span><span class="p">:</span>
+  <span class="nl">accessModes</span><span class="p">:</span> <span class="p">[</span> <span class="s">&quot;ReadWriteOnce&quot;</span> <span class="p">]</span>
+  <span class="nl">storageClassName</span><span class="p">:</span> <span class="s">&quot;my-storage-class&quot;</span>
+  <span class="nl">resources</span><span class="p">:</span>
+    <span class="nl">requests</span><span class="p">:</span>
+      <span class="nl">storage</span><span class="p">:</span> <span class="err">$</span><span class="p">{</span><span class="n">var</span><span class="p">.</span><span class="n">elasticsearch</span><span class="p">.</span><span class="n">master_node</span><span class="p">.</span><span class="n">volume_size</span><span class="p">}</span><span class="n">Gi</span>
+<span class="nl">resources</span><span class="p">:</span>
+  <span class="nl">requests</span><span class="p">:</span>
+    <span class="nl">cpu</span><span class="p">:</span> <span class="err">$</span><span class="p">{</span><span class="n">var</span><span class="p">.</span><span class="n">elasticsearch</span><span class="p">.</span><span class="n">master_node</span><span class="p">.</span><span class="n">cpu</span><span class="p">}</span>
+    <span class="nl">memory</span><span class="p">:</span> <span class="err">$</span><span class="p">{</span><span class="n">var</span><span class="p">.</span><span class="n">elasticsearch</span><span class="p">.</span><span class="n">data_node</span><span class="p">.</span><span class="n">memory</span><span class="p">}</span><span class="n">Gi</span>
+<span class="nl">roles</span><span class="p">:</span>
+  <span class="nl">master</span><span class="p">:</span> <span class="s">&quot;true&quot;</span>
+  <span class="nl">ingest</span><span class="p">:</span> <span class="s">&quot;false&quot;</span>
+  <span class="nl">data</span><span class="p">:</span> <span class="s">&quot;false&quot;</span>
+<span class="n">RAW_VALUES</span>
+  <span class="p">]</span>
+
+  <span class="n">set</span> <span class="p">{</span>
+    <span class="n">name</span>  <span class="o">=</span> <span class="s">&quot;imageTag&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;7.6.2&quot;</span>
+  <span class="p">}</span>
+
+  <span class="n">set</span> <span class="p">{</span>
+    <span class="n">name</span>  <span class="o">=</span> <span class="s">&quot;clusterName&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;elasticsearch-cluster&quot;</span>
+  <span class="p">}</span>
+
+  <span class="n">set</span> <span class="p">{</span>
+    <span class="n">name</span>  <span class="o">=</span> <span class="s">&quot;nodeGroup&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;master&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h4>Data Nodes</h4>
+<div class="highlight"><pre><span></span><span class="n">resource</span> <span class="n">helm_release</span> <span class="s">&quot;elasticsearch_data&quot;</span> <span class="p">{</span>
+  <span class="n">name</span>       <span class="o">=</span> <span class="s">&quot;elasticsearch-data&quot;</span>
+  <span class="n">repository</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">helm_repository</span><span class="p">.</span><span class="n">stable</span><span class="p">.</span><span class="n">metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">name</span>
+  <span class="n">chart</span>      <span class="o">=</span> <span class="s">&quot;elasticsearch&quot;</span>
+  <span class="n">version</span>    <span class="o">=</span> <span class="s">&quot;7.6.1&quot;</span>
+  <span class="n">timeout</span>    <span class="o">=</span> <span class="mi">900</span>
+
+  <span class="n">values</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="o">&lt;&lt;</span><span class="n">RAW_VALUES</span>
+<span class="nl">volumeClaimTemplate</span><span class="p">:</span>
+  <span class="nl">accessModes</span><span class="p">:</span> <span class="p">[</span> <span class="s">&quot;ReadWriteOnce&quot;</span> <span class="p">]</span>
+  <span class="nl">storageClassName</span><span class="p">:</span> <span class="s">&quot;my-storage-class&quot;</span>
+  <span class="nl">resources</span><span class="p">:</span>
+    <span class="nl">requests</span><span class="p">:</span>
+      <span class="nl">storage</span><span class="p">:</span> <span class="err">$</span><span class="p">{</span><span class="n">var</span><span class="p">.</span><span class="n">elasticsearch</span><span class="p">.</span><span class="n">data_node</span><span class="p">.</span><span class="n">volume_size</span><span class="p">}</span><span class="n">Gi</span>
+<span class="nl">resources</span><span class="p">:</span>
+  <span class="nl">requests</span><span class="p">:</span>
+    <span class="nl">cpu</span><span class="p">:</span> <span class="err">$</span><span class="p">{</span><span class="n">var</span><span class="p">.</span><span class="n">elasticsearch</span><span class="p">.</span><span class="n">data_node</span><span class="p">.</span><span class="n">cpu</span><span class="p">}</span>
+    <span class="nl">memory</span><span class="p">:</span> <span class="err">$</span><span class="p">{</span><span class="n">var</span><span class="p">.</span><span class="n">elasticsearch</span><span class="p">.</span><span class="n">data_node</span><span class="p">.</span><span class="n">memory</span><span class="p">}</span><span class="n">Gi</span>
+<span class="nl">roles</span><span class="p">:</span>
+  <span class="nl">master</span><span class="p">:</span> <span class="s">&quot;false&quot;</span>
+  <span class="nl">ingest</span><span class="p">:</span> <span class="s">&quot;true&quot;</span>
+  <span class="nl">data</span><span class="p">:</span> <span class="s">&quot;true&quot;</span>
+<span class="n">RAW_VALUES</span>
+  <span class="p">]</span>
+
+  <span class="n">set</span> <span class="p">{</span>
+    <span class="n">name</span>  <span class="o">=</span> <span class="s">&quot;imageTag&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;7.6.2&quot;</span>
+  <span class="p">}</span>
+
+  <span class="n">set</span> <span class="p">{</span>
+    <span class="n">name</span>  <span class="o">=</span> <span class="s">&quot;clusterName&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;elasticsearch-cluster&quot;</span>
+  <span class="p">}</span>
+
+  <span class="n">set</span> <span class="p">{</span>
+    <span class="n">name</span>  <span class="o">=</span> <span class="s">&quot;nodeGroup&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;data&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Happy Coding! Cheers :)</p>
+</div>
+<div>
+</div>
+		</div>
+	</body>
+</html>

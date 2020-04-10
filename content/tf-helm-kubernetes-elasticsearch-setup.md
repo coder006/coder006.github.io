@@ -7,7 +7,7 @@ Slug: tf-helm-kubernetes-elasticsearch-setup
 Authors: Ambar Mehrotra
 Summary: Installing Elasticsearch inside a Kubernetes cluster with Helm and Terraform
 
-Github Repository: [tf-aws-alicloud-vpn](https://github.com/coder006/tf-helm-kubernetes-elasticsearch.git "Github Repository")
+Github Repository: [tf-helm-kubernetes-elasticsearch](https://github.com/coder006/tf-helm-kubernetes-elasticsearch.git "Github Repository")
 
 > ___Note___:
 > This guide uses Terraform for making API calls and state management. If you have helm installed on your machine, you can use that instead for installing the chart.

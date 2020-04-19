@@ -3,9 +3,9 @@ Date: 2020-04-19 16:30
 Modified: 2020-04-19 16:30
 Category: Kubernetes
 Tags: kubernetes, containers, docker, cloud, health-checks
-Slug: kubernetes-liveness-and-readiness-probe
+Slug: kubernetes-liveness-probe
 Authors: Ambar Mehrotra
-Summary: An Introduction to Liveness and Readiness probes in Kubernetes
+Summary: An Introduction to Liveness probe in Kubernetes
 
 It was not very long ago when we were deploying individual services on each Virtual Machine. This process required the engineer in charge of the deployment process to be aware of all the machines where each service was deployed. Sure, people had build great solutions around this deployment model like tagging their EC2 machines with special names like and using automation tools like Rundeck, Jenkins, etc., to automate the deployment process. Although this process had matured to a great extent over several years, it still had it's shortcomings like -- _random application crashes, ineffecient deployment practices, poor reselience to failures, improper resource utilization, and bad practices around secret and configuration management_.
 

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns#">
+	<head>
+		<link rel="favicon" href="https://ambar.dev/images/favicon.ico" />
+		<link href="http://gmpg.org/xfn/11" rel="profile">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+		<!-- Metadata -->
+	<meta name="description" content="">
+	<meta property="og:description" content="">
+	<meta property="og:title" content="An Introduction to Kubernetes Health Checks - Liveness Probe (Part I)" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://ambar.dev/kubernetes-liveness-and-readiness-probe.html" />
+		<meta property="og:image" content="https://ambar.dev/images/profile-picture.jpeg" />
+
+		<!-- Enable responsiveness on mobile devices-->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+		<title>All Things Connected</title>
+
+		<!-- CSS -->
+		<link href="//fonts.googleapis.com/" rel="dns-prefetch">
+		<link href="//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic|Abril+Fatface|PT+Sans:400,400italic,700&amp;subset=latin,latin-ext" rel="stylesheet">
+
+		<link rel="stylesheet" href="https://ambar.dev/theme/css/poole.css" />
+		<link rel="stylesheet" href="https://ambar.dev/theme/css/hyde.css" />
+		<link rel="stylesheet" href="https://ambar.dev/theme/css/syntax.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.4.0/css/all.min.css">
+
+		<!-- RSS -->
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+	</head>
+
+	<body class="theme-base-0d">
+<div class="sidebar">
+	<div class="container sidebar-sticky">
+		<div class="sidebar-about">
+
+			<h1>
+				<a href="/">
+					<img class="profile-picture" src="https://ambar.dev/images/profile-picture.jpeg">
+					All Things Connected
+				</a>
+			</h1>
+			<p class="lead"></p>
+			<p class="lead"> </p>
+			<p></p>
+		</div>
+		<div class="sidebar-nav">
+			<a class="sidebar-nav-item" href="mailto:mehrotraambar@gmail.com">
+				<i class="fa fa-envelope"></i>
+			</a>
+			<a class="sidebar-nav-item" href="https://twitter.com/decoder006" target="_blank">
+				<i class="fab fa-twitter"></i>
+			</a>
+			<a class="sidebar-nav-item" href="https://github.com/coder006" target="_blank">
+				<i class="fab fa-github"></i>
+			</a>
+			<a class="sidebar-nav-item" href="https://dev.to/_notanengineer" target="_blank">
+				<i class="fab fa-dev"></i>
+			</a>
+		</div>
+	</div>
+</div>		<div class="content container">
+<div class="post">
+	<h1 class="post-title">An Introduction to Kubernetes Health Checks - Liveness Probe (Part I)</h1>
+	<span class="post-date">Sun 19 April 2020</span>
+	<!-- <p>It was not very long ago when we were deploying individual services on each Virtual Machine. This process required the engineer in charge of the deployment process to be aware of all the machines where each service was deployed. Sure, people had build great solutions around this deployment model like tagging their EC2 machines with special names like and using automation tools like Rundeck, Jenkins, etc., to automate the deployment process. Although this process had matured to a great extent over several years, it still had it's shortcomings like -- <em>random application crashes, ineffecient deployment practices, poor reselience to failures, improper resource utilization, and bad practices around secret and configuration management</em>.</p>
+<h2>The rise of Docker and Kuebernetes</h2>
+<p>In order to solve the above mentioned problems, people started building solutions around container environments like Docker and Kuebrnetes which not only solved the above mentioned problems, but also provided other benifits. One of the major benifits of using a platform like <strong>Kubernetes</strong> is that it provides <strong>self-healing</strong> capibilities to your application. According to the Kubernetes documentation, self-healing can be defined as:</p>
+<blockquote>
+<p>Kubernetes restarts containers that fail, replaces containers, kills containers that don’t respond to your user-defined health check, and doesn’t advertise them to clients until they are ready to serve.</p>
+</blockquote>
+<p>What this basically means is, if your application for some reason goes into a state where it cannot perform it's desired function, kubernetes will try to replace the crashing instance with a new one until it succeeds. Well, how does Kubernetes know that a pod (<em>A Pod is the basic execution unit of a Kubernetes application</em>) is not in a healthy state, or weather it is ready to handle any extra workload at the moment? Kubernetes solves this problem with the help of <strong>health checks</strong>. Kubernetes has 2 types of health checks that it uses to determine the health of a running pod -- Liveness Probe and Readiness Probe. In this first part, we will take a look at how the liveness probe works and how we can use it to keep our applications healthy.</p>
+<h2>Liveness Probe</h2>
+<p><img alt="Kubernetes Liveness Probe" src="https://media.giphy.com/media/SYRBDJ0Pj3pSxx6Lft/giphy.gif"></p>
+<p>Developers and engineers often make mistakes. Sometimes, these mistakes don't get caught in our nightly or staging environments, and might spill over to production. Often, these mistakes result in applications that get stuck in tricky situations and hence cannot perform their designated operatiosn as usual. Sometimes, these corner cases can cause the application to crash during the most unexpected of circumstances, when it is not possible for an engineer to take a look and correct it.</p>
+<p><img alt="Unexpected Circumstances" src="https://media.giphy.com/media/u5Pxn776rafRe/giphy.gif"></p>
+<p>Some of the corner cases might include the following:</p>
+<ul>
+<li>An application not responding because of a deadlock</li>
+<li>Null Pointer Exceptions causing the application to crash</li>
+<li>Out of Memory (OOM) errors causing the application to crash</li>
+</ul>
+<p>Often, applications stuck in these states need a restart to start functioning correctly again. The <a href="https://kubernetes.io/docs/admin/kubelet/">kubelet</a> uses <strong>liveness probes</strong> to check if the application is alive and behaving correctly to know when to restart a container. Let us look at an example to see what parameters are involved in a liveness probe.</p>
+<div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Pod</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">labels</span><span class="p">:</span>
+    <span class="nt">test</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">liveness</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">liveness-exec</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">containers</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">liveness</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">k8s.gcr.io/busybox</span>
+    <span class="nt">args</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/bin/sh</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">-c</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600</span>
+    <span class="nt">livenessProbe</span><span class="p">:</span>
+      <span class="nt">exec</span><span class="p">:</span>
+        <span class="nt">command</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">cat</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/tmp/healthy</span>
+      <span class="nt">initialDelaySeconds</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+      <span class="nt">periodSeconds</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+</pre></div>
+
+
+<p>If you look at the <code>livenessProbe</code> section of the yaml, you can see that the <em>kubelet</em> performs a <code>cat</code> operation on the <code>/tmp/healthy</code> file. If the file is present and the cat operation is successful, the command returns with <em>exit status 0</em>, and the kubelet considers the container to be in healthy state. On the other hand, if the command returns with a <em>non zero exit status</em>, kubelet kills the container and restarts it. </p>
+<p>The <code>initialDelaySeconds</code> parameter tells the <em>kubelet</em> that it should wait for 5 seconds before performing the first liveness check. This ensures that the container is not considered to be in a crashing state when it is booting up. After the initial delay, the <em>kubelet</em> performs the liveness check every 5 seconds as defined by the <code>periodSeconds</code> field.</p>
+<p>In the above example, when the container starts, it executes the following command:</p>
+<div class="highlight"><pre><span></span>/bin/sh -c <span class="s2">&quot;touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600&quot;</span>
+</pre></div>
+
+
+<p>When the container starts, it executes the command <code>touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600</code> that can be divided into the following parts which are performed in the mentioned order:</p>
+<ul>
+<li>Create the file <code>/tmp/healthy</code></li>
+<li>Go to sleep for 30s</li>
+<li>Delete the earlier created file <code>/tmp/healthy</code></li>
+<li>Go to sleep for 600s</li>
+</ul>
+<p>After the file <code>/tmp/healthy</code> is deleted, the liveness probe will start failing and the liveness probe will start returning an error code back to the <em>kubelet</em>. On detecting the failure, the <em>kubelet</em> will kill the existing container and replace it with a new one. The <em>kubelet</em> will keep doing this unless the liveness probe succeeds. You can run the command <code>kubectl describe po liveness-exec</code> to view the pod events.</p>
+<p><img alt="Liveness Probe Pod Status" src="https://imgur.com/PmEXLS0.png"></p>
+<p>As you can see, when the <em>kubelet</em> found the pod to be unhealthy 3 consecutive times over a period of 14 seconds, it marked the pod as <strong>unhealthy</strong> and went ahead to restart it. Apart from generic commands, a Liveness probe can also be defined over <code>TCP</code> and <code>HTTP</code> endpoints which are specially helpful if you are developing web applications.</p>
+<h3>TCP liveness probe</h3>
+<div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Pod</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">goproxy</span>
+  <span class="nt">labels</span><span class="p">:</span>
+    <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">goproxy</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">containers</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">goproxy</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">k8s.gcr.io/goproxy:0.1</span>
+    <span class="nt">ports</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">containerPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
+    <span class="nt">livenessProbe</span><span class="p">:</span>
+      <span class="nt">tcpSocket</span><span class="p">:</span>
+        <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
+      <span class="nt">initialDelaySeconds</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">15</span>
+      <span class="nt">periodSeconds</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">20</span>
+</pre></div>
+
+
+<p>This kind of liveness probe is basically a port check. If you want to check if a particular port on your web application is responsive or not, this is the way to go.</p>
+<h3>HTTP liveness probe</h3>
+<div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Pod</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">labels</span><span class="p">:</span>
+    <span class="nt">test</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">liveness</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">liveness-http</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">containers</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">liveness</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">k8s.gcr.io/liveness</span>
+    <span class="nt">args</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/server</span>
+    <span class="nt">livenessProbe</span><span class="p">:</span>
+      <span class="nt">httpGet</span><span class="p">:</span>
+        <span class="nt">path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/healthz</span>
+        <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
+        <span class="nt">httpHeaders</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Custom-Header</span>
+          <span class="nt">value</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Awesome</span>
+      <span class="nt">initialDelaySeconds</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+      <span class="nt">periodSeconds</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+</pre></div>
+
+
+<p>For an HTTP liveness probe, kubelet polls the endpoint of the container as defined by the <code>path</code> and <code>port</code> parameters in the yaml. If the endpoint returns a success status code, the container is considered healthy.</p>
+<blockquote>
+<p>Any code greater than or equal to 200 and less than 400 indicates success. Any other code indicates failure</p>
+</blockquote>
+<h2>Conclusion</h2>
+<p>In this post we saw what were the problems with the traditional approach to deploying and monitoring applications, what are the solutions that Docker and Kubernetes provide for handling the issues, and how the Liveness Probe helps resolve these issues. In the next post, we will take a look at the other kind of Kubernetes Health Check -- Readiness Probe. Stay healthy and stay tuned.</p>
+<p><img alt="Healthy" src="https://media.giphy.com/media/8lMQKIZIXiOn0VVs3A/giphy.gif"></p>
+<p>Happy Coding! Cheers :)</p>
+ -->
+</div>
+<div style="text-align: justify;">
+	<p>It was not very long ago when we were deploying individual services on each Virtual Machine. This process required the engineer in charge of the deployment process to be aware of all the machines where each service was deployed. Sure, people had build great solutions around this deployment model like tagging their EC2 machines with special names like and using automation tools like Rundeck, Jenkins, etc., to automate the deployment process. Although this process had matured to a great extent over several years, it still had it's shortcomings like -- <em>random application crashes, ineffecient deployment practices, poor reselience to failures, improper resource utilization, and bad practices around secret and configuration management</em>.</p>
+<h2>The rise of Docker and Kuebernetes</h2>
+<p>In order to solve the above mentioned problems, people started building solutions around container environments like Docker and Kuebrnetes which not only solved the above mentioned problems, but also provided other benifits. One of the major benifits of using a platform like <strong>Kubernetes</strong> is that it provides <strong>self-healing</strong> capibilities to your application. According to the Kubernetes documentation, self-healing can be defined as:</p>
+<blockquote>
+<p>Kubernetes restarts containers that fail, replaces containers, kills containers that don’t respond to your user-defined health check, and doesn’t advertise them to clients until they are ready to serve.</p>
+</blockquote>
+<p>What this basically means is, if your application for some reason goes into a state where it cannot perform it's desired function, kubernetes will try to replace the crashing instance with a new one until it succeeds. Well, how does Kubernetes know that a pod (<em>A Pod is the basic execution unit of a Kubernetes application</em>) is not in a healthy state, or weather it is ready to handle any extra workload at the moment? Kubernetes solves this problem with the help of <strong>health checks</strong>. Kubernetes has 2 types of health checks that it uses to determine the health of a running pod -- Liveness Probe and Readiness Probe. In this first part, we will take a look at how the liveness probe works and how we can use it to keep our applications healthy.</p>
+<h2>Liveness Probe</h2>
+<p><img alt="Kubernetes Liveness Probe" src="https://media.giphy.com/media/SYRBDJ0Pj3pSxx6Lft/giphy.gif"></p>
+<p>Developers and engineers often make mistakes. Sometimes, these mistakes don't get caught in our nightly or staging environments, and might spill over to production. Often, these mistakes result in applications that get stuck in tricky situations and hence cannot perform their designated operatiosn as usual. Sometimes, these corner cases can cause the application to crash during the most unexpected of circumstances, when it is not possible for an engineer to take a look and correct it.</p>
+<p><img alt="Unexpected Circumstances" src="https://media.giphy.com/media/u5Pxn776rafRe/giphy.gif"></p>
+<p>Some of the corner cases might include the following:</p>
+<ul>
+<li>An application not responding because of a deadlock</li>
+<li>Null Pointer Exceptions causing the application to crash</li>
+<li>Out of Memory (OOM) errors causing the application to crash</li>
+</ul>
+<p>Often, applications stuck in these states need a restart to start functioning correctly again. The <a href="https://kubernetes.io/docs/admin/kubelet/">kubelet</a> uses <strong>liveness probes</strong> to check if the application is alive and behaving correctly to know when to restart a container. Let us look at an example to see what parameters are involved in a liveness probe.</p>
+<div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Pod</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">labels</span><span class="p">:</span>
+    <span class="nt">test</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">liveness</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">liveness-exec</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">containers</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">liveness</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">k8s.gcr.io/busybox</span>
+    <span class="nt">args</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/bin/sh</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">-c</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600</span>
+    <span class="nt">livenessProbe</span><span class="p">:</span>
+      <span class="nt">exec</span><span class="p">:</span>
+        <span class="nt">command</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">cat</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/tmp/healthy</span>
+      <span class="nt">initialDelaySeconds</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+      <span class="nt">periodSeconds</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+</pre></div>
+
+
+<p>If you look at the <code>livenessProbe</code> section of the yaml, you can see that the <em>kubelet</em> performs a <code>cat</code> operation on the <code>/tmp/healthy</code> file. If the file is present and the cat operation is successful, the command returns with <em>exit status 0</em>, and the kubelet considers the container to be in healthy state. On the other hand, if the command returns with a <em>non zero exit status</em>, kubelet kills the container and restarts it. </p>
+<p>The <code>initialDelaySeconds</code> parameter tells the <em>kubelet</em> that it should wait for 5 seconds before performing the first liveness check. This ensures that the container is not considered to be in a crashing state when it is booting up. After the initial delay, the <em>kubelet</em> performs the liveness check every 5 seconds as defined by the <code>periodSeconds</code> field.</p>
+<p>In the above example, when the container starts, it executes the following command:</p>
+<div class="highlight"><pre><span></span>/bin/sh -c <span class="s2">&quot;touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600&quot;</span>
+</pre></div>
+
+
+<p>When the container starts, it executes the command <code>touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600</code> that can be divided into the following parts which are performed in the mentioned order:</p>
+<ul>
+<li>Create the file <code>/tmp/healthy</code></li>
+<li>Go to sleep for 30s</li>
+<li>Delete the earlier created file <code>/tmp/healthy</code></li>
+<li>Go to sleep for 600s</li>
+</ul>
+<p>After the file <code>/tmp/healthy</code> is deleted, the liveness probe will start failing and the liveness probe will start returning an error code back to the <em>kubelet</em>. On detecting the failure, the <em>kubelet</em> will kill the existing container and replace it with a new one. The <em>kubelet</em> will keep doing this unless the liveness probe succeeds. You can run the command <code>kubectl describe po liveness-exec</code> to view the pod events.</p>
+<p><img alt="Liveness Probe Pod Status" src="https://imgur.com/PmEXLS0.png"></p>
+<p>As you can see, when the <em>kubelet</em> found the pod to be unhealthy 3 consecutive times over a period of 14 seconds, it marked the pod as <strong>unhealthy</strong> and went ahead to restart it. Apart from generic commands, a Liveness probe can also be defined over <code>TCP</code> and <code>HTTP</code> endpoints which are specially helpful if you are developing web applications.</p>
+<h3>TCP liveness probe</h3>
+<div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Pod</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">goproxy</span>
+  <span class="nt">labels</span><span class="p">:</span>
+    <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">goproxy</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">containers</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">goproxy</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">k8s.gcr.io/goproxy:0.1</span>
+    <span class="nt">ports</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">containerPort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
+    <span class="nt">livenessProbe</span><span class="p">:</span>
+      <span class="nt">tcpSocket</span><span class="p">:</span>
+        <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
+      <span class="nt">initialDelaySeconds</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">15</span>
+      <span class="nt">periodSeconds</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">20</span>
+</pre></div>
+
+
+<p>This kind of liveness probe is basically a port check. If you want to check if a particular port on your web application is responsive or not, this is the way to go.</p>
+<h3>HTTP liveness probe</h3>
+<div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Pod</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">labels</span><span class="p">:</span>
+    <span class="nt">test</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">liveness</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">liveness-http</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">containers</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">liveness</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">k8s.gcr.io/liveness</span>
+    <span class="nt">args</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">/server</span>
+    <span class="nt">livenessProbe</span><span class="p">:</span>
+      <span class="nt">httpGet</span><span class="p">:</span>
+        <span class="nt">path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/healthz</span>
+        <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8080</span>
+        <span class="nt">httpHeaders</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Custom-Header</span>
+          <span class="nt">value</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Awesome</span>
+      <span class="nt">initialDelaySeconds</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+      <span class="nt">periodSeconds</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+</pre></div>
+
+
+<p>For an HTTP liveness probe, kubelet polls the endpoint of the container as defined by the <code>path</code> and <code>port</code> parameters in the yaml. If the endpoint returns a success status code, the container is considered healthy.</p>
+<blockquote>
+<p>Any code greater than or equal to 200 and less than 400 indicates success. Any other code indicates failure</p>
+</blockquote>
+<h2>Conclusion</h2>
+<p>In this post we saw what were the problems with the traditional approach to deploying and monitoring applications, what are the solutions that Docker and Kubernetes provide for handling the issues, and how the Liveness Probe helps resolve these issues. In the next post, we will take a look at the other kind of Kubernetes Health Check -- Readiness Probe. Stay healthy and stay tuned.</p>
+<p><img alt="Healthy" src="https://media.giphy.com/media/8lMQKIZIXiOn0VVs3A/giphy.gif"></p>
+<p>Happy Coding! Cheers :)</p>
+</div>
+<div>
+</div>
+		</div>
+	</body>
+</html>

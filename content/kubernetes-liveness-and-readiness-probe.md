@@ -1,4 +1,4 @@
-Title: An Introduction to Kubernetes Health Checks - Liveness Probe (Part I) 
+Title: An Introduction to Kubernetes Health Checks - Liveness Probe (Part I)
 Date: 2020-04-19 16:30
 Modified: 2020-04-19 16:30
 Category: Kubernetes
@@ -31,7 +31,7 @@ Some of the corner cases might include the following:
 - Null Pointer Exceptions causing the application to crash
 - Out of Memory (OOM) errors causing the application to crash
 
-Often, applications stuck in these states need a restart to start functioning correctly again. The [kubelet](https://kubernetes.io/docs/admin/kubelet/) uses __liveness probes__ to check if the application is alive and behaving correctly to know when to restart a container. Let us look at an example to see what parameters are involved in a liveness probe.
+__Often, applications stuck in these states need a restart to start functioning correctly again__. The [kubelet](https://kubernetes.io/docs/admin/kubelet/) uses __liveness probes__ to check if the application is alive and behaving correctly to know when to restart a container. Let us look at an example to see what parameters are involved in a liveness probe.
 
 ```yaml
 apiVersion: v1

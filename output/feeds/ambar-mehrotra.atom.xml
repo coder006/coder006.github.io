@@ -16,7 +16,7 @@
 &lt;li&gt;Null Pointer Exceptions causing the application to crash&lt;/li&gt;
 &lt;li&gt;Out of Memory (OOM) errors causing the application to crash&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;Often, applications stuck in these states need a restart to start functioning correctly again. The &lt;a href="https://kubernetes.io/docs/admin/kubelet/"&gt;kubelet&lt;/a&gt; uses &lt;strong&gt;liveness probes&lt;/strong&gt; to check if the application is alive and behaving correctly to know when to restart a container. Let us look at an example to see what parameters are involved in a liveness probe.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Often, applications stuck in these states need a restart to start functioning correctly again&lt;/strong&gt;. The &lt;a href="https://kubernetes.io/docs/admin/kubelet/"&gt;kubelet&lt;/a&gt; uses &lt;strong&gt;liveness probes&lt;/strong&gt; to check if the application is alive and behaving correctly to know when to restart a container. Let us look at an example to see what parameters are involved in a liveness probe.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;apiVersion&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;v1&lt;/span&gt;
 &lt;span class="nt"&gt;kind&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;Pod&lt;/span&gt;
 &lt;span class="nt"&gt;metadata&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;

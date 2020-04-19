@@ -61,11 +61,6 @@ If you look at the `livenessProbe` section of the yaml, you can see that the _ku
 
 The `initialDelaySeconds` parameter tells the _kubelet_ that it should wait for 5 seconds before performing the first liveness check. This ensures that the container is not considered to be in a crashing state when it is booting up. After the initial delay, the _kubelet_ performs the liveness check every 5 seconds as defined by the `periodSeconds` field.
 
-In the above example, when the container starts, it executes the following command:
-```sh
-/bin/sh -c "touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600"
-```
-
 When the container starts, it executes the command `touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600` that can be divided into the following parts which are performed in the mentioned order:
 
 - Create the file `/tmp/healthy`

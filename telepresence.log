@@ -1,0 +1,922 @@
+   0.0 TEL | Telepresence 0.104 launched at Mon Apr 20 12:09:47 2020
+   0.0 TEL |   /usr/local/bin/telepresence --also-proxy 10.250.0.0/16 --deployment telepresence-perm
+   0.0 TEL | uname: uname_result(system='Darwin', node='CLPT0952.local', release='19.4.0', version='Darwin Kernel Version 19.4.0: Wed Mar  4 22:28:40 PST 2020; root:xnu-6153.101.6~15/RELEASE_X86_64', machine='x86_64', processor='i386')
+   0.0 TEL | Platform: darwin
+   0.0 TEL | WSL: False
+   0.0 TEL | Python 3.7.4 (default, Aug 13 2019, 15:17:50)
+   0.0 TEL | [Clang 4.0.1 (tags/RELEASE_401/final)]
+   0.0 TEL | BEGIN SPAN main.py:40(main)
+   0.0 TEL | BEGIN SPAN startup.py:83(set_kube_command)
+   0.0 TEL | Found kubectl -> /usr/local/bin/kubectl
+   0.0 TEL | [1] Capturing: kubectl config current-context
+   0.1 TEL | [1] captured in 0.06 secs.
+   0.1 TEL | [2] Capturing: kubectl --context default-context version --short
+   7.2 TEL | [2] captured in 7.10 secs.
+   7.2 TEL | [3] Capturing: kubectl --context default-context config view -o json
+   7.2 TEL | [3] captured in 0.05 secs.
+   7.2 TEL | [4] Capturing: kubectl --context default-context get ns default
+  11.9 TEL | [4] captured in 4.70 secs.
+  11.9 TEL | [5] Capturing: kubectl --context default-context api-versions
+  14.5 TEL | [5] captured in 2.59 secs.
+  14.5 TEL | Command: kubectl 1.16.3
+  14.5 TEL | Context: default-context, namespace: default, version: 1.14.9-eks-f459c0
+  14.5 TEL | Warning: kubectl 1.16.3 may not work correctly with cluster version 1.14.9-eks-f459c0 due to the version discrepancy. See https://kubernetes.io/docs/setup/version-skew-policy/ for more information.
+  14.5 TEL | END SPAN startup.py:83(set_kube_command)   14.5s
+  14.5 TEL | Found ssh -> /usr/bin/ssh
+  14.5 TEL | [6] Capturing: ssh -V
+  14.5 TEL | [6] captured in 0.01 secs.
+  14.5 TEL | Found bash -> /bin/bash
+  14.5 TEL | Found sshuttle-telepresence -> /usr/local/Cellar/telepresence/0.104/libexec/sshuttle-telepresence
+  14.5 TEL | Found pfctl -> /sbin/pfctl
+  14.5 TEL | Found sudo -> /usr/bin/sudo
+  14.5 TEL | [7] Running: sudo -n echo -n
+  14.6   7 | sudo: a password is required
+  14.6 TEL | [7] exit 1 in 0.05 secs.
+  14.6 >>> | How Telepresence uses sudo: https://www.telepresence.io/reference/install#dependencies
+  14.6 >>> | Invoking sudo. Please enter your sudo password.
+  14.6 TEL | [8] Running: sudo echo -n
+  25.1 TEL | [8] ran in 10.45 secs.
+  25.1 >>> | Starting proxy with method 'vpn-tcp', which has the following limitations: All processes are affected, only one telepresence can run per machine, and you can't use other VPNs. You may need to add cloud hosts and headless services with --also-proxy. For a full list of method limitations see https://telepresence.io/reference/methods.html
+  25.1 TEL | Found sshfs -> /usr/local/bin/sshfs
+  25.1 TEL | Found umount -> /sbin/umount
+  25.1 >>> | Volumes are rooted at $TELEPRESENCE_ROOT. See https://telepresence.io/howto/volumes.html for details.
+  25.1 TEL | [9] Running: kubectl --context default-context --namespace default get pods telepresence-connectivity-check --ignore-not-found
+  27.0 TEL | [9] ran in 1.96 secs.
+  28.4 TEL | Scout info: {'latest_version': '0.104', 'application': 'telepresence', 'notices': []}
+  28.4 >>> | Starting network proxy to cluster using the existing proxy Deployment telepresence-perm
+  28.4 TEL | [10] Running: kubectl --context default-context --namespace default get deployment telepresence-perm
+  30.8  10 | NAME                READY   UP-TO-DATE   AVAILABLE   AGE
+  30.8  10 | telepresence-perm   1/1     1            1           4d23h
+  30.8 TEL | [10] ran in 2.38 secs.
+  30.8 TEL | BEGIN SPAN remote.py:142(get_remote_info)
+  30.8 TEL | BEGIN SPAN remote.py:75(get_deployment_json)
+  30.8 TEL | [11] Capturing: kubectl --context default-context --namespace default get deployment -o json telepresence-perm
+  32.6 TEL | [11] captured in 1.77 secs.
+  32.6 TEL | END SPAN remote.py:75(get_deployment_json)    1.8s
+  32.6 TEL | Searching for Telepresence pod:
+  32.6 TEL |   with name telepresence-perm-*
+  32.6 TEL |   with labels {'telepresence': '8af560b8414c4803bc0fd0c1193139fb'}
+  32.6 TEL | [12] Capturing: kubectl --context default-context --namespace default get pod -o json
+  55.2 TEL | [13] Running: sudo -n echo -n
+  55.2 TEL | [13] ran in 0.03 secs.
+  65.3 TEL | [12] captured in 32.73 secs.
+  65.3 TEL | Checking aira-api-676459ff8c-6hhqk
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking api-rate-limiter-65cccfd464-g8wx6
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking arya-86bdfb6dc-kr75l
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking async-59dc97f477-csrqp
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking bi-api-6dd674857c-f2mq6
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking campaign-shard-f9db8d7c6-75djq
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking cap-data-ingestion-7f4878fb64-rbpcj
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking cluster-autoscaler-aws-cluster-autoscaler-5b9f49b456-x6l7x
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking cluster-overprovisioner-overprovisioner-7f8d5fbc55-ztn4m
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking comm-delivery-server-6fd569fd68-c4psv
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking comm-engine-78bbcb7b74-t6lnd
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking comm-engine-master-755868c9-tqwld
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking comm-server-776b8c77fb-dtr4b
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking comm-server-master-7c7bb65948-fzd4g
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking coupons-api-594fd78bbb-lppbn
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking creatives-node-api-service-6d55c6f695-m8rd4
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking cron-scheduler-6467f68477-dmb67
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking dark-knight-74d6695474-pmtmv
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking dracarys-b986db94d-mkk2n
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking efk-elasticsearch-curator-1587171600-djb7c
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking efk-elasticsearch-curator-1587258000-6x9tl
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking efk-elasticsearch-curator-1587344400-cn6hb
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking efk-kibana-597c546d49-mw64p
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking elasticsearch-operator-sysctl-5hgnx
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking elasticsearch-operator-sysctl-fpzbl
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking elasticsearch-operator-sysctl-lfvnp
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking elasticsearch-operator-sysctl-mr9bf
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking elasticsearch-operator-sysctl-rtzw5
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking elasticsearch-operator-sysctl-tj2sd
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking elasticsearch-operator-sysctl-tvtx4
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking emf-f657c944c-vtqvm
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking es-client-efk-cluster-c77dbd948-jt5mk
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking es-client-efk-cluster-c77dbd948-m7s9l
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking es-client-efk-cluster-c77dbd948-mr2sr
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking es-data-efk-cluster-default-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking es-data-efk-cluster-default-1
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking es-data-efk-cluster-default-2
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking es-master-efk-cluster-default-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking etl-es-data-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking etl-es-data-1
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking etl-es-data-2
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking etl-es-master-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking etl-es-master-1
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking etl-es-master-2
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking event-forest-578cb8b8b9-cp76q
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking event-ingestion-5fd89b798b-2blhg
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking event-ingestion-es-data-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking event-ingestion-es-data-1
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking event-ingestion-es-data-2
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking event-ingestion-es-master-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking event-ingestion-es-master-1
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking event-ingestion-es-master-2
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking export-api-8748ccf8c-wq4t8
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fb-gateway-8457fdb489-n9f6j
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking ffc-notification-55657f446d-cw7ms
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking file-service-6c9fbcb959-cxwdt
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fileservice-php-c97f99659-2h6b9
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fluent-bit-7989x
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fluent-bit-9gs7w
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fluent-bit-b8ccc
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fluent-bit-blddt
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fluent-bit-hnzjh
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fluent-bit-j2trb
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fluent-bit-tt8gf
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fluentd-efs-2bz5z
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fluentd-efs-7gqkz
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fluentd-efs-ffwnl
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fluentd-efs-gk56j
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fluentd-efs-hpvxg
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fluentd-efs-ptsfz
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking fluentd-efs-wnd86
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking gateway-monitoring-6bc8b76ff4-5bhsc
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking internal-intouch-api-8466bb8474-p9lj8
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking internal-intouch-ui-664c486597-nb7vx
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking intouch-api-65b9857559-72brj
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking intouch-api-php-56f448d548-fhqt6
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking intouch-api-v3-6bbf77958-n6j2j
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking intouch-ingress-nginx-ingress-controller-69c85b4775-9pwwh
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking intouch-ingress-nginx-ingress-controller-69c85b4775-hpl4g
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking intouch-ingress-nginx-ingress-default-backend-55f7cc979c-gd7rj
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking intouch-ui-7565bc94f6-hpfnv
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking iris-84fd454944-rgskw
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking kafka-events-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking kafka-events-1
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking kafka-events-2
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking kafka-events-zookeeper-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking kube2iam-6bbmd
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking kube2iam-8qtbd
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking kube2iam-dkr2x
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking kube2iam-dmd9m
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking kube2iam-kz59t
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking kube2iam-thhrl
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking kube2iam-zgw4n
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking luci-797f8bf8bb-kwm76
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking metrics-server-84cff4dbc4-ssdfn
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking mongo-rs-campaigns-mongodb-arbiter-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking mongo-rs-campaigns-mongodb-primary-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking mongo-rs-campaigns-mongodb-secondary-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking mongo-rs-eventforest-mongodb-5ccdbf4c69-7tkkv
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking neo4j-reon-workflow-neo4j-core-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking neo4j-reon-workflow-neo4j-core-1
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking neo4j-reon-workflow-neo4j-core-2
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking nfs-node-api-747d4d65-ncj6p
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking nse-api-576d8cd8f7-cflsx
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking nse-node-api-686f68b599-nhvmq
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking nsm-broker-api-79bd5d8dd8-bksbw
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking org-settings-node-api-679969b4d5-t5stw
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking peb-8644999bcf-5794h
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking qassh-fdd6649c-wfn5w
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking recommender-api-7dd7976685-d4hdp
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking recommender-api-86f7f46bdb-7n4hx
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking reed-596fd95bc8-fjgb7
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking registrar-endpoint-service-79bf97f65f-l2twz
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking reon-bi-api-consumer-service-59874fc94-69jwh
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking reon-bi-api-consumer-service-6764fd5f9d-cmn8p
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking reon-meta-api-567787744c-zcxzl
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking rmq-intouch-rabbitmq-ha-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking segments-es-data-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking segments-es-data-1
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking segments-es-data-2
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking segments-es-master-0
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking segments-es-master-1
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking segments-es-master-2
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking shardmanager-endpoint-service-7495cbc867-9f4vj
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking sharingan-74575f57dc-72bk4
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking storecare-api-7d5ccf8f45-5wl7k
+  65.3 TEL | --> Name does not match
+  65.3 TEL | Checking telepresence-perm-97c469587-lw5j2
+  65.3 TEL | Looks like we've found our pod!
+  65.3 TEL | BEGIN SPAN remote.py:104(wait_for_pod)
+  65.3 TEL | [14] Capturing: kubectl --context default-context --namespace default get pod telepresence-perm-97c469587-lw5j2 -o json
+  67.1 TEL | [14] captured in 1.83 secs.
+  67.1 TEL | END SPAN remote.py:104(wait_for_pod)    1.8s
+  67.1 TEL | END SPAN remote.py:142(get_remote_info)   36.4s
+  67.1 TEL | BEGIN SPAN connect.py:37(connect)
+  67.1 TEL | [15] Launching kubectl logs: kubectl --context default-context --namespace default logs -f telepresence-perm-97c469587-lw5j2 --container telepresence-perm --tail=10
+  67.1 TEL | [16] Launching kubectl port-forward: kubectl --context default-context --namespace default port-forward telepresence-perm-97c469587-lw5j2 58113:8022
+  67.2 TEL | [17] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  67.2 TEL | [17] exit 255 in 0.01 secs.
+  67.4 TEL | [18] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  67.4 TEL | [18] exit 255 in 0.01 secs.
+  67.7 TEL | [19] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  67.7 TEL | [19] exit 255 in 0.01 secs.
+  68.0 TEL | [20] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  68.0 TEL | [20] exit 255 in 0.01 secs.
+  68.2 TEL | [21] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  68.2 TEL | [21] exit 255 in 0.01 secs.
+  68.5 TEL | [22] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  68.5 TEL | [22] exit 255 in 0.01 secs.
+  68.8 TEL | [23] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  68.8 TEL | [23] exit 255 in 0.01 secs.
+  69.0 TEL | [24] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  69.0 TEL | [24] exit 255 in 0.01 secs.
+  69.3 TEL | [25] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  69.3 TEL | [25] exit 255 in 0.01 secs.
+  69.4  15 | 2020-04-20T06:40:51+0000 [stdout#info] Result for b'play.google.com' is ['172.217.9.206']
+  69.4  15 | 2020-04-20T06:40:55+0000 [stdout#info] 6 query: b'local'
+  69.4  15 | 2020-04-20T06:40:55+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 12046
+  69.4  15 | 2020-04-20T06:40:55+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50ccbbe0>
+  69.4  15 | 2020-04-20T06:40:55+0000 [-] (UDP Port 12046 Closed)
+  69.4  15 | 2020-04-20T06:40:55+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50ccbbe0>
+  69.4  15 | 2020-04-20T06:40:55+0000 [stdout#info] A query: b'ssl.gstatic.com'
+  69.4  15 | 2020-04-20T06:40:55+0000 [stdout#info] Result for b'ssl.gstatic.com' is ['172.217.13.67']
+  69.4  15 | 2020-04-20T06:40:56+0000 [stdout#info] A query: b'f.flockusercontent3.com'
+  69.6 TEL | [26] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  69.6 TEL | [26] exit 255 in 0.01 secs.
+  69.8  15 | 2020-04-20T06:40:56+0000 [stdout#info] getaddrinfo error: [Errno -2] Name does not resolve
+  69.8 TEL | [27] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  69.8 TEL | [27] exit 255 in 0.01 secs.
+  70.1 TEL | [28] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  70.1 TEL | [28] exit 255 in 0.01 secs.
+  70.4 TEL | [29] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  70.4 TEL | [29] exit 255 in 0.01 secs.
+  70.4  15 | 2020-04-20T06:40:56+0000 [stdout#info] A query: b'captive.apple.com'
+  70.4  15 | 2020-04-20T06:40:56+0000 [stdout#info] Result for b'captive.apple.com' is ['17.253.21.204', '17.253.21.201']
+  70.6 TEL | [30] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  70.6 TEL | [30] exit 255 in 0.01 secs.
+  70.9 TEL | [31] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  70.9 TEL | [31] exit 255 in 0.01 secs.
+  71.0  16 | Forwarding from 127.0.0.1:58113 -> 8022
+  71.0  16 | Forwarding from [::1]:58113 -> 8022
+  71.2 TEL | [32] Running: ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 /bin/true
+  71.2  16 | Handling connection for 58113
+  72.1  15 | 2020-04-20T06:40:59+0000 [stdout#info] A query: b'live.github.com'
+  74.0  15 | 2020-04-20T06:40:59+0000 [stdout#info] Result for b'live.github.com' is ['140.82.112.26']
+  74.0  15 | 2020-04-20T06:41:00+0000 [stdout#info] A query: b'docs.google.com'
+  74.0  15 | 2020-04-20T06:41:00+0000 [stdout#info] Result for b'docs.google.com' is ['172.217.13.78']
+  74.1  15 | 2020-04-20T06:41:01+0000 [Poll#info] Checkpoint
+  74.4  15 | 2020-04-20T06:41:01+0000 [stdout#info] A query: b'capillarytech.atlassian.net'
+  74.4  15 | 2020-04-20T06:41:01+0000 [stdout#info] Result for b'capillarytech.atlassian.net' is ['18.234.32.175', '18.234.32.173', '18.234.32.174']
+  74.6 TEL | [32] ran in 3.43 secs.
+  74.6 >>> | 
+  74.6 >>> | No traffic is being forwarded from the remote Deployment to your local machine. You can use the --expose option to specify which ports you want to forward.
+  74.6 >>> | 
+  74.6 TEL | Launching Web server for proxy poll
+  74.6 TEL | [33] Launching SSH port forward (socks and proxy poll): ssh -N -oServerAliveInterval=1 -oServerAliveCountMax=10 -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q -p 58113 telepresence@127.0.0.1 -L127.0.0.1:58137:127.0.0.1:9050 -R9055:127.0.0.1:58138
+  74.6 TEL | END SPAN connect.py:37(connect)    7.5s
+  74.6 TEL | BEGIN SPAN remote_env.py:29(get_remote_env)
+  74.6 TEL | [34] Capturing: kubectl --context default-context --namespace default exec telepresence-perm-97c469587-lw5j2 --container telepresence-perm -- python3 podinfo.py
+  74.6  16 | Handling connection for 58113
+  75.2  15 | 2020-04-20T06:41:02+0000 [stdout#info] A query: b'0.client-channel.google.com'
+  75.3  15 | 2020-04-20T06:41:02+0000 [stdout#info] Result for b'0.client-channel.google.com' is ['172.217.197.189']
+  76.0  15 | 2020-04-20T06:41:02+0000 [stdout#info] A query: b'ps3.pndsn.com'
+  76.0  15 | 2020-04-20T06:41:02+0000 [stdout#info] Result for b'ps3.pndsn.com' is ['54.236.3.170', '54.236.3.168']
+  76.1  15 | 2020-04-20T06:41:03+0000 [stdout#info] A query: b'play.google.com'
+  76.1  15 | 2020-04-20T06:41:03+0000 [stdout#info] Result for b'play.google.com' is ['172.217.7.174']
+  78.8  15 | 2020-04-20T06:41:05+0000 [stdout#info] A query: b'chat-pa.clients6.google.com'
+  78.8  15 | 2020-04-20T06:41:05+0000 [stdout#info] Result for b'chat-pa.clients6.google.com' is ['172.217.12.234']
+  79.7  15 | 2020-04-20T06:41:06+0000 [stdout#info] 12 query: b'1.33.168.192.in-addr.arpa'
+  79.7  15 | 2020-04-20T06:41:06+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 55956
+  79.7  15 | 2020-04-20T06:41:06+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50ca5240>
+  79.7  15 | 2020-04-20T06:41:06+0000 [-] (UDP Port 55956 Closed)
+  79.7  15 | 2020-04-20T06:41:06+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50ca5240>
+  81.0 TEL | [34] captured in 6.45 secs.
+  81.0 TEL | END SPAN remote_env.py:29(get_remote_env)    6.4s
+  81.0 TEL | BEGIN SPAN mount.py:30(mount_remote_volumes)
+  81.0 TEL | [35] Running: sshfs -p 58113 -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null telepresence@127.0.0.1:/ /tmp/tel-enoqlsnl/fs
+  81.3  15 | 2020-04-20T06:41:08+0000 [stdout#info] A query: b'api-glb-che.smoot.apple.com'
+  81.4  15 | 2020-04-20T06:41:08+0000 [stdout#info] Result for b'api-glb-che.smoot.apple.com' is ['17.242.168.246']
+  81.5  16 | Handling connection for 58113
+  85.3 TEL | [36] Running: sudo -n echo -n
+  85.3 TEL | [36] ran in 0.03 secs.
+  85.9  15 | 2020-04-20T06:41:12+0000 [stdout#info] A query: b'captive.apple.com'
+  85.9  15 | 2020-04-20T06:41:12+0000 [stdout#info] Result for b'captive.apple.com' is ['17.253.21.201', '17.253.21.205']
+  86.5 TEL | [35] ran in 5.42 secs.
+  86.5 TEL | END SPAN mount.py:30(mount_remote_volumes)    5.4s
+  86.5 TEL | BEGIN SPAN vpn.py:271(connect_sshuttle)
+  86.5 TEL | BEGIN SPAN vpn.py:77(get_proxy_cidrs)
+  86.5 TEL | [37] Capturing: kubectl --context default-context --namespace default get nodes -o json
+  88.2  37 | Error from server (Forbidden): nodes is forbidden: User "system:serviceaccount:default:readonly" cannot list resource "nodes" in API group "" at the cluster scope
+  88.2 TEL | [37] exit 1 in 1.78 secs.
+  88.2 TEL | Failed to get nodes: Command '['kubectl', '--context', 'default-context', '--namespace', 'default', 'get', 'nodes', '-o', 'json']' returned non-zero exit status 1.
+  88.2 TEL | [38] Capturing: kubectl --context default-context --namespace default get pods -o json
+  90.1  15 | 2020-04-20T06:41:17+0000 [stdout#info] A query: b'lh4.googleusercontent.com'
+  90.1  15 | 2020-04-20T06:41:17+0000 [stdout#info] Result for b'lh4.googleusercontent.com' is ['172.217.7.193']
+  90.1  15 | 2020-04-20T06:41:17+0000 [stdout#info] A query: b'play.google.com'
+  90.1  15 | 2020-04-20T06:41:17+0000 [stdout#info] Result for b'play.google.com' is ['172.217.9.206']
+  92.6  15 | 2020-04-20T06:41:19+0000 [stdout#info] A query: b'rpm.newrelic.com'
+  92.7  15 | 2020-04-20T06:41:19+0000 [stdout#info] Result for b'rpm.newrelic.com' is ['162.247.242.35', '162.247.242.37', '162.247.242.36']
+  92.9  15 | 2020-04-20T06:41:19+0000 [stdout#info] A query: b'mail.google.com'
+  92.9  15 | 2020-04-20T06:41:19+0000 [stdout#info] Result for b'mail.google.com' is ['172.217.164.165']
+  94.7  15 | 2020-04-20T06:41:21+0000 [stdout#info] 12 query: b'1.0.94.127.in-addr.arpa'
+  94.7  15 | 2020-04-20T06:41:21+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 28306
+  94.7  15 | 2020-04-20T06:41:21+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50ca5dd8>
+  94.7  15 | 2020-04-20T06:41:21+0000 [-] (UDP Port 28306 Closed)
+  94.7  15 | 2020-04-20T06:41:21+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50ca5dd8>
+  94.9  15 | 2020-04-20T06:41:21+0000 [stdout#info] 12 query: b'2.1.168.192.in-addr.arpa'
+  94.9  15 | 2020-04-20T06:41:21+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 14458
+  95.1  15 | 2020-04-20T06:41:21+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50c302e8>
+  95.1  15 | 2020-04-20T06:41:21+0000 [-] (UDP Port 14458 Closed)
+  95.1  15 | 2020-04-20T06:41:21+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50c302e8>
+  95.5  15 | 2020-04-20T06:41:22+0000 [stdout#info] A query: b'www.covid19india.org'
+  95.5  15 | 2020-04-20T06:41:22+0000 [stdout#info] Result for b'www.covid19india.org' is ['185.199.110.153', '185.199.109.153', '185.199.111.153', '185.199.108.153']
+  96.6  15 | 2020-04-20T06:41:23+0000 [stdout#info] A query: b'www.googletagmanager.com'
+  96.6  15 | 2020-04-20T06:41:23+0000 [stdout#info] Result for b'www.googletagmanager.com' is ['172.217.13.72']
+  96.9  15 | 2020-04-20T06:41:23+0000 [stdout#info] A query: b'api.covid19india.org'
+  96.9  15 | 2020-04-20T06:41:23+0000 [stdout#info] A query: b'content-autofill.googleapis.com'
+  96.9  15 | 2020-04-20T06:41:23+0000 [stdout#info] Result for b'content-autofill.googleapis.com' is ['172.217.12.234']
+  97.0  15 | 2020-04-20T06:41:23+0000 [stdout#info] Result for b'api.covid19india.org' is ['185.199.109.153', '185.199.111.153', '185.199.108.153', '185.199.110.153']
+  97.1  15 | 2020-04-20T06:41:24+0000 [stdout#info] A query: b'www.google-analytics.com'
+  97.1  15 | 2020-04-20T06:41:24+0000 [stdout#info] Result for b'www.google-analytics.com' is ['172.217.12.238']
+  97.6  15 | 2020-04-20T06:41:24+0000 [stdout#info] A query: b'www.jetbrains.com'
+  97.6  15 | 2020-04-20T06:41:24+0000 [stdout#info] Result for b'www.jetbrains.com' is ['54.187.241.135', '34.211.1.235']
+ 101.9  15 | 2020-04-20T06:41:28+0000 [stdout#info] A query: b'captive.apple.com'
+ 101.9  15 | 2020-04-20T06:41:28+0000 [stdout#info] Result for b'captive.apple.com' is ['17.253.21.203', '17.253.21.206']
+ 103.1  15 | 2020-04-20T06:41:30+0000 [stdout#info] A query: b'lh5.googleusercontent.com'
+ 103.1  15 | 2020-04-20T06:41:30+0000 [stdout#info] Result for b'lh5.googleusercontent.com' is ['172.217.7.129']
+ 104.1  15 | 2020-04-20T06:41:31+0000 [Poll#info] Checkpoint
+ 107.9  15 | 2020-04-20T06:41:34+0000 [stdout#info] 6 query: b'local'
+ 107.9  15 | 2020-04-20T06:41:34+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 60661
+ 107.9  15 | 2020-04-20T06:41:34+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50baa278>
+ 107.9  15 | 2020-04-20T06:41:34+0000 [-] (UDP Port 60661 Closed)
+ 107.9  15 | 2020-04-20T06:41:34+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50baa278>
+ 108.9 TEL | [38] captured in 20.68 secs.
+ 108.9 TEL | [39] Capturing: kubectl --context default-context --namespace default get services -o json
+ 109.7  15 | 2020-04-20T06:41:36+0000 [stdout#info] 12 query: b'2.0.94.127.in-addr.arpa'
+ 110.1  15 | 2020-04-20T06:41:36+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 43527
+ 110.1  15 | 2020-04-20T06:41:36+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50baa278>
+ 110.1  15 | 2020-04-20T06:41:36+0000 [-] (UDP Port 43527 Closed)
+ 110.1  15 | 2020-04-20T06:41:36+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50baa278>
+ 110.4  15 | 2020-04-20T06:41:36+0000 [stdout#info] 12 query: b'1.33.168.192.in-addr.arpa'
+ 110.4  15 | 2020-04-20T06:41:36+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 30153
+ 110.4  15 | 2020-04-20T06:41:36+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50b8a4a8>
+ 110.4  15 | 2020-04-20T06:41:36+0000 [-] (UDP Port 30153 Closed)
+ 110.4  15 | 2020-04-20T06:41:36+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50b8a4a8>
+ 112.9  15 | 2020-04-20T06:41:39+0000 [stdout#info] 6 query: b'local'
+ 112.9  15 | 2020-04-20T06:41:39+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 44095
+ 112.9  15 | 2020-04-20T06:41:39+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50c9d390>
+ 112.9  15 | 2020-04-20T06:41:39+0000 [-] (UDP Port 44095 Closed)
+ 112.9  15 | 2020-04-20T06:41:39+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50c9d390>
+ 113.1 TEL | [39] captured in 4.18 secs.
+ 113.1 >>> | Guessing that Services IP range is 172.20.0.0/16. Services started after this point will be inaccessible if are outside this range; restart telepresence if you can't access a new Service.
+ 113.1 TEL | END SPAN vpn.py:77(get_proxy_cidrs)   26.7s
+ 113.1 TEL | [40] Launching sshuttle: sshuttle-telepresence -v --dns --method auto -e 'ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null' -r telepresence@127.0.0.1:58113 --to-ns 127.0.0.1:9053 10.250.32.0/20 172.20.0.0/16 10.250.0.0/16
+ 113.1 TEL | BEGIN SPAN vpn.py:294(connect_sshuttle,sshuttle-wait)
+ 113.1 TEL | Wait for vpn-tcp connection: hellotelepresence-0
+ 113.1 TEL | [41] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-0")'
+ 113.2 TEL | [41] exit 1 in 0.07 secs.
+ 113.2 TEL | [42] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-0.a.sanity.check.telepresence.io")'
+ 113.5 TEL | [42] exit 1 in 0.29 secs.
+ 113.6 TEL | Wait for vpn-tcp connection: hellotelepresence-1
+ 113.6 TEL | [43] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-1")'
+ 113.7  40 | Starting sshuttle proxy.
+ 113.8 TEL | [43] exit 1 in 0.18 secs.
+ 113.8 TEL | [44] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-1.a.sanity.check.telepresence.io")'
+ 114.2 TEL | [44] exit 1 in 0.45 secs.
+ 114.3 TEL | Wait for vpn-tcp connection: hellotelepresence-2
+ 114.3 TEL | [45] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-2")'
+ 114.4 TEL | [45] exit 1 in 0.08 secs.
+ 114.4 TEL | [46] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-2.a.sanity.check.telepresence.io")'
+ 114.5 TEL | [46] exit 1 in 0.08 secs.
+ 114.6 TEL | Wait for vpn-tcp connection: hellotelepresence-3
+ 114.6 TEL | [47] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-3")'
+ 114.8  40 | firewall manager: Starting firewall with Python version 3.7.4
+ 114.8  40 | firewall manager: ready method name pf.
+ 114.8 TEL | [47] exit 1 in 0.24 secs.
+ 114.8 TEL | [48] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-3.a.sanity.check.telepresence.io")'
+ 114.8  40 | IPv6 enabled: True
+ 114.8  40 | UDP enabled: False
+ 114.8  40 | DNS enabled: True
+ 114.8  40 | TCP redirector listening on ('::1', 12300, 0, 0).
+ 114.8  40 | TCP redirector listening on ('127.0.0.1', 12300).
+ 114.8  40 | DNS listening on ('::1', 12300, 0, 0).
+ 114.8  40 | DNS listening on ('127.0.0.1', 12300).
+ 114.8  40 | Starting client with Python version 3.7.4
+ 114.8  40 | c : connecting to server...
+ 114.9  16 | Handling connection for 58113
+ 115.1 TEL | [48] exit 1 in 0.30 secs.
+ 115.2 TEL | Wait for vpn-tcp connection: hellotelepresence-4
+ 115.2 TEL | [49] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-4")'
+ 115.5 TEL | [50] Running: sudo -n echo -n
+ 115.5 TEL | [49] exit 1 in 0.24 secs.
+ 115.5 TEL | [51] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-4.a.sanity.check.telepresence.io")'
+ 115.5 TEL | [50] ran in 0.03 secs.
+ 116.1  15 | 2020-04-20T06:41:43+0000 [stdout#info] A query: b'd3cv4a9a9wh0bt.cloudfront.net'
+ 116.1  15 | 2020-04-20T06:41:43+0000 [stdout#info] Result for b'd3cv4a9a9wh0bt.cloudfront.net' is ['13.249.40.22', '13.249.40.187', '13.249.40.85', '13.249.40.176']
+ 116.5 TEL | [51] timed out after 1.01 secs.
+ 116.6  40 | Warning: Permanently added '[127.0.0.1]:58113' (ECDSA) to the list of known hosts.
+ 116.6 TEL | Wait for vpn-tcp connection: hellotelepresence-5
+ 116.6 TEL | [52] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-5")'
+ 116.8 TEL | [52] exit 1 in 0.24 secs.
+ 116.8 TEL | [53] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-5.a.sanity.check.telepresence.io")'
+ 117.0 TEL | [53] exit 1 in 0.13 secs.
+ 117.1 TEL | Wait for vpn-tcp connection: hellotelepresence-6
+ 117.1 TEL | [54] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-6")'
+ 117.3 TEL | [54] exit 1 in 0.24 secs.
+ 117.3 TEL | [55] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-6.a.sanity.check.telepresence.io")'
+ 117.4 TEL | [55] exit 1 in 0.13 secs.
+ 117.5 TEL | Wait for vpn-tcp connection: hellotelepresence-7
+ 117.5 TEL | [56] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-7")'
+ 117.6  15 | 2020-04-20T06:41:44+0000 [stdout#info] A query: b'play.google.com'
+ 117.6  15 | 2020-04-20T06:41:44+0000 [stdout#info] Result for b'play.google.com' is ['172.217.7.174']
+ 117.6 TEL | [56] exit 1 in 0.08 secs.
+ 117.6 TEL | [57] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-7.a.sanity.check.telepresence.io")'
+ 117.7 TEL | [57] exit 1 in 0.13 secs.
+ 117.8 TEL | Wait for vpn-tcp connection: hellotelepresence-8
+ 117.9 TEL | [58] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-8")'
+ 117.9  15 | 2020-04-20T06:41:44+0000 [stdout#info] A query: b'captive.apple.com'
+ 117.9  15 | 2020-04-20T06:41:44+0000 [stdout#info] Result for b'captive.apple.com' is ['17.253.21.203', '17.253.21.205']
+ 118.3 TEL | [58] exit 1 in 0.46 secs.
+ 118.3 TEL | [59] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-8.a.sanity.check.telepresence.io")'
+ 118.4 TEL | [59] exit 1 in 0.13 secs.
+ 118.5 TEL | Wait for vpn-tcp connection: hellotelepresence-9
+ 118.5 TEL | [60] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-9")'
+ 119.1 TEL | [60] exit 1 in 0.56 secs.
+ 119.1 TEL | [61] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-9.a.sanity.check.telepresence.io")'
+ 119.2 TEL | [61] exit 1 in 0.08 secs.
+ 119.3 TEL | Wait for vpn-tcp connection: hellotelepresence-10
+ 119.3 TEL | [62] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-10")'
+ 119.3  15 | 2020-04-20T06:41:46+0000 [stdout#info] A query: b'mail.google.com'
+ 119.3  15 | 2020-04-20T06:41:46+0000 [stdout#info] Result for b'mail.google.com' is ['172.217.13.229']
+ 120.5  40 | Starting server with Python version 3.6.8
+ 120.5  40 |  s: latency control setting = True
+ 120.5  40 |  s: available routes:
+ 120.5  40 | c : Connected.
+ 120.5  40 | firewall manager: setting up.
+ 120.5  40 | >> pfctl -s Interfaces -i lo -v
+ 120.5  40 | >> pfctl -s all
+ 120.5  40 | >> pfctl -a sshuttle6-12300 -f /dev/stdin
+ 120.5  40 | >> pfctl -E
+ 120.5  40 | >> pfctl -s Interfaces -i lo -v
+ 120.5  40 | >> pfctl -s all
+ 120.5  40 | >> pfctl -a sshuttle-12300 -f /dev/stdin
+ 120.5  40 | >> pfctl -E
+ 120.9  15 | 2020-04-20T06:41:47+0000 [stdout#info] A query: b'ssl.gstatic.com'
+ 120.9  15 | 2020-04-20T06:41:47+0000 [stdout#info] Result for b'ssl.gstatic.com' is ['172.217.164.131']
+ 122.3  40 | c : DNS request from ('192.168.1.8', 56238) to None: 38 bytes
+ 122.6  15 | 2020-04-20T06:41:49+0000 [stdout#info] A query: b'min-api.cryptocompare.com'
+ 122.6  15 | 2020-04-20T06:41:49+0000 [stdout#info] Result for b'min-api.cryptocompare.com' is ['40.115.22.134']
+ 122.7  15 | 2020-04-20T06:41:49+0000 [stdout#info] Result for b'hellotelepresence-10' is ['127.0.0.1']
+ 122.8 TEL | [62] captured in 3.49 secs.
+ 122.8 TEL | Resolved hellotelepresence-10. 2 more...
+ 122.8 TEL | [63] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-10.a.sanity.check.telepresence.io")'
+ 122.8  40 | c : DNS request from ('192.168.1.8', 63165) to None: 69 bytes
+ 123.2  15 | 2020-04-20T06:41:50+0000 [stdout#info] Sanity check: b'hellotelepresence-10.a.sanity.check.telepresence.io'
+ 123.3 TEL | [63] exit 1 in 0.50 secs.
+ 123.4 TEL | Wait for vpn-tcp connection: hellotelepresence-11
+ 123.4 TEL | [64] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-11")'
+ 123.4  40 | c : DNS request from ('192.168.1.8', 55764) to None: 38 bytes
+ 123.8  15 | 2020-04-20T06:41:50+0000 [stdout#info] Result for b'hellotelepresence-11' is ['127.0.0.1']
+ 123.9 TEL | [64] captured in 0.50 secs.
+ 123.9 TEL | Resolved hellotelepresence-11. 1 more...
+ 123.9 TEL | [65] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-11.a.sanity.check.telepresence.io")'
+ 123.9  40 | c : DNS request from ('192.168.1.8', 52504) to None: 69 bytes
+ 124.3  15 | 2020-04-20T06:41:51+0000 [stdout#info] Sanity check: b'hellotelepresence-11.a.sanity.check.telepresence.io'
+ 124.9 TEL | [65] timed out after 1.01 secs.
+ 125.0 TEL | Wait for vpn-tcp connection: hellotelepresence-12
+ 125.0 TEL | [66] Capturing: python3 -c 'import socket; socket.gethostbyname("hellotelepresence-12")'
+ 125.0  40 | c : DNS request from ('192.168.1.8', 52201) to None: 38 bytes
+ 125.5  15 | 2020-04-20T06:41:52+0000 [stdout#info] Result for b'hellotelepresence-12' is ['127.0.0.1']
+ 126.0  40 | c : DNS request from ('192.168.1.8', 52201) to None: 38 bytes
+ 126.1 TEL | [66] captured in 1.10 secs.
+ 126.1 TEL | Resolved hellotelepresence-12. 0 more...
+ 126.1 TEL | END SPAN vpn.py:294(connect_sshuttle,sshuttle-wait)   13.0s
+ 126.1 TEL | END SPAN vpn.py:271(connect_sshuttle)   39.6s
+ 126.1 >>> | Connected. Flushing DNS cache.
+ 126.1 TEL | [67] Running: sudo -n /usr/bin/pkill -HUP mDNSResponder
+ 126.1  40 | c : DNS request from ('192.168.1.8', 62370) to None: 58 bytes
+ 126.1 TEL | [67] ran in 0.05 secs.
+ 126.5  15 | 2020-04-20T06:41:53+0000 [stdout#info] Result for b'hellotelepresence-12' is ['127.0.0.1']
+ 126.6  15 | 2020-04-20T06:41:53+0000 [stdout#info] 12 query: b'lb._dns-sd._udp.0.1.168.192.in-addr.arpa'
+ 126.6  15 | 2020-04-20T06:41:53+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 35674
+ 126.6  15 | 2020-04-20T06:41:53+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50d02780>
+ 126.9  15 | 2020-04-20T06:41:53+0000 [-] (UDP Port 35674 Closed)
+ 126.9  15 | 2020-04-20T06:41:53+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50d02780>
+ 128.0 >>> | Setup complete. Launching your command.
+ 128.0 TEL | Everything launched. Waiting to exit...
+ 128.0 TEL | BEGIN SPAN runner.py:725(wait_for_exit)
+ 128.3  15 | 2020-04-20T06:41:55+0000 [stdout#info] 6 query: b'local'
+ 128.3  15 | 2020-04-20T06:41:55+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 50145
+ 128.3  15 | 2020-04-20T06:41:55+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50b8a6d8>
+ 128.3  15 | 2020-04-20T06:41:55+0000 [-] (UDP Port 50145 Closed)
+ 128.3  15 | 2020-04-20T06:41:55+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50b8a6d8>
+ 129.3  15 | 2020-04-20T06:41:56+0000 [stdout#info] A query: b'play.google.com'
+ 129.3  15 | 2020-04-20T06:41:56+0000 [stdout#info] Result for b'play.google.com' is ['172.217.9.206']
+ 131.7  15 | 2020-04-20T06:41:58+0000 [stdout#info] A query: b'gspe35-ssl.ls.apple.com'
+ 131.7  15 | 2020-04-20T06:41:58+0000 [stdout#info] Result for b'gspe35-ssl.ls.apple.com' is ['184.24.159.171']
+ 132.1  15 | 2020-04-20T06:41:59+0000 [stdout#info] A query: b'fs.go.to'
+ 132.5  15 | 2020-04-20T06:41:59+0000 [stdout#info] Result for b'fs.go.to' is ['52.54.172.146']
+ 133.8  15 | 2020-04-20T06:42:00+0000 [stdout#info] A query: b'fs.flockusercontent.com'
+ 133.9  15 | 2020-04-20T06:42:00+0000 [stdout#info] Result for b'fs.flockusercontent.com' is ['52.85.151.46', '52.85.151.107', '52.85.151.61', '52.85.151.121']
+ 134.1  15 | 2020-04-20T06:42:01+0000 [Poll#info] Checkpoint
+ 134.1  15 | 2020-04-20T06:42:01+0000 [stdout#info] A query: b'play.google.com'
+ 134.1  15 | 2020-04-20T06:42:01+0000 [stdout#info] Result for b'play.google.com' is ['172.217.164.142']
+ 134.4  15 | 2020-04-20T06:42:01+0000 [stdout#info] A query: b'toibnews.timesofindia.indiatimes.com'
+ 134.5  15 | 2020-04-20T06:42:01+0000 [stdout#info] Result for b'toibnews.timesofindia.indiatimes.com' is ['104.117.29.108']
+ 134.9  15 | 2020-04-20T06:42:01+0000 [stdout#info] A query: b'captive.apple.com'
+ 134.9  15 | 2020-04-20T06:42:01+0000 [stdout#info] Result for b'captive.apple.com' is ['17.253.21.202', '17.253.21.205']
+ 136.9  15 | 2020-04-20T06:42:03+0000 [stdout#info] 33 query: b'_ldap._tcp.Default-First-Site-Name._sites.dc._msdcs.capdomain.com'
+ 136.9  15 | 2020-04-20T06:42:03+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 41650
+ 136.9  15 | 2020-04-20T06:42:03+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50a6bcc0>
+ 136.9  15 | 2020-04-20T06:42:03+0000 [-] (UDP Port 41650 Closed)
+ 136.9  15 | 2020-04-20T06:42:03+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50a6bcc0>
+ 137.3  15 | 2020-04-20T06:42:04+0000 [stdout#info] 33 query: b'_ldap._tcp.capdomain.com'
+ 137.3  15 | 2020-04-20T06:42:04+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 10104
+ 137.3  15 | 2020-04-20T06:42:04+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50a6b9b0>
+ 137.3  15 | 2020-04-20T06:42:04+0000 [-] (UDP Port 10104 Closed)
+ 137.3  15 | 2020-04-20T06:42:04+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50a6b9b0>
+ 139.1  15 | 2020-04-20T06:42:06+0000 [stdout#info] A query: b'eventsapi.darwinbox.in'
+ 139.1  15 | 2020-04-20T06:42:06+0000 [stdout#info] A query: b'google.com'
+ 139.1  15 | 2020-04-20T06:42:06+0000 [stdout#info] Result for b'google.com' is ['172.217.13.78']
+ 139.2  15 | 2020-04-20T06:42:06+0000 [stdout#info] Result for b'eventsapi.darwinbox.in' is ['13.126.226.1', '35.154.182.135']
+ 139.5  15 | 2020-04-20T06:42:06+0000 [stdout#info] A query: b'apps-static.flock.com'
+ 139.5  15 | 2020-04-20T06:42:06+0000 [stdout#info] Result for b'apps-static.flock.com' is ['52.85.151.73', '52.85.151.7', '52.85.151.9', '52.85.151.121']
+ 139.7  15 | 2020-04-20T06:42:06+0000 [stdout#info] 12 query: b'1.0.94.127.in-addr.arpa'
+ 139.7  15 | 2020-04-20T06:42:06+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 23725
+ 139.7  15 | 2020-04-20T06:42:06+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50baa390>
+ 139.7  15 | 2020-04-20T06:42:06+0000 [-] (UDP Port 23725 Closed)
+ 139.9  15 | 2020-04-20T06:42:06+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50baa390>
+ 139.9  15 | 2020-04-20T06:42:06+0000 [stdout#info] 12 query: b'2.1.168.192.in-addr.arpa'
+ 139.9  15 | 2020-04-20T06:42:06+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 58451
+ 139.9  15 | 2020-04-20T06:42:06+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50cbd710>
+ 139.9  15 | 2020-04-20T06:42:06+0000 [-] (UDP Port 58451 Closed)
+ 139.9  15 | 2020-04-20T06:42:06+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50cbd710>
+ 140.2  15 | 2020-04-20T06:42:07+0000 [stdout#info] A query: b'f.flockusercontent3.com'
+ 140.2  15 | 2020-04-20T06:42:07+0000 [stdout#info] getaddrinfo error: [Errno -2] Name does not resolve
+ 140.6  15 | 2020-04-20T06:42:07+0000 [stdout#info] A query: b'apps.flock.com'
+ 140.6  15 | 2020-04-20T06:42:07+0000 [stdout#info] Result for b'apps.flock.com' is ['52.22.104.74', '52.72.51.197']
+ 145.6 TEL | [68] Running: sudo -n echo -n
+ 145.6 TEL | [68] ran in 0.03 secs.
+ 146.3  15 | 2020-04-20T06:42:13+0000 [stdout#info] A query: b'ip-192-168-0-165.ec2.internal'
+ 146.4  15 | 2020-04-20T06:42:13+0000 [stdout#info] Result for b'ip-192-168-0-165.ec2.internal' is ['192.168.0.165']
+ 147.0  15 | 2020-04-20T06:42:13+0000 [stdout#info] A query: b'events.launchdarkly.com'
+ 147.0  15 | 2020-04-20T06:42:13+0000 [stdout#info] Result for b'events.launchdarkly.com' is ['34.198.115.132', '54.210.179.47', '35.171.53.60', '34.195.196.170', '54.210.89.192', '54.209.204.79', '52.201.53.178', '52.203.83.235']
+ 147.3  15 | 2020-04-20T06:42:14+0000 [stdout#info] A query: b'play.google.com'
+ 147.4  15 | 2020-04-20T06:42:14+0000 [stdout#info] Result for b'play.google.com' is ['172.217.9.206']
+ 147.7  15 | 2020-04-20T06:42:14+0000 [stdout#info] A query: b'cappatch.capillarytech.com'
+ 147.7  15 | 2020-04-20T06:42:14+0000 [stdout#info] Result for b'cappatch.capillarytech.com' is ['115.110.71.130', '182.74.245.246']
+ 149.1  15 | 2020-04-20T06:42:16+0000 [stdout#info] A query: b'chat-pa.clients6.google.com'
+ 149.2  15 | 2020-04-20T06:42:16+0000 [stdout#info] Result for b'chat-pa.clients6.google.com' is ['172.217.7.170']
+ 150.8  15 | 2020-04-20T06:42:17+0000 [stdout#info] A query: b'gateway.icloud.com'
+ 150.8  15 | 2020-04-20T06:42:17+0000 [stdout#info] Result for b'gateway.icloud.com' is ['17.248.134.138', '17.248.134.206', '17.248.134.172', '17.248.134.204', '17.248.134.200', '17.248.134.181', '17.248.134.176', '17.248.143.56']
+ 150.8  15 | 2020-04-20T06:42:17+0000 [stdout#info] A query: b'captive.apple.com'
+ 150.8  15 | 2020-04-20T06:42:17+0000 [stdout#info] Result for b'captive.apple.com' is ['17.253.21.208', '17.253.21.203']
+ 153.4  15 | 2020-04-20T06:42:20+0000 [stdout#info] A query: b'mtalk.google.com'
+ 153.4  15 | 2020-04-20T06:42:20+0000 [stdout#info] Result for b'mtalk.google.com' is ['172.253.122.188']
+ 154.7  15 | 2020-04-20T06:42:21+0000 [stdout#info] 12 query: b'2.0.94.127.in-addr.arpa'
+ 154.7  15 | 2020-04-20T06:42:21+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 47071
+ 154.7  15 | 2020-04-20T06:42:21+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50a6b240>
+ 154.7  15 | 2020-04-20T06:42:21+0000 [-] (UDP Port 47071 Closed)
+ 154.7  15 | 2020-04-20T06:42:21+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50a6b240>
+ 154.9  40 | c : DNS request from ('192.168.1.8', 63917) to None: 31 bytes
+ 154.9  40 | c : DNS request from ('192.168.1.8', 53371) to None: 35 bytes
+ 154.9  40 | c : DNS request from ('192.168.1.8', 51896) to None: 40 bytes
+ 154.9  40 | c : DNS request from ('192.168.1.8', 56594) to None: 50 bytes
+ 154.9  40 | c : DNS request from ('192.168.1.8', 65401) to None: 50 bytes
+ 154.9  40 | c : DNS request from ('192.168.1.8', 64061) to None: 43 bytes
+ 154.9  40 | c : DNS request from ('192.168.1.8', 50991) to None: 42 bytes
+ 155.0  15 | 2020-04-20T06:42:21+0000 [stdout#info] 12 query: b'1.33.168.192.in-addr.arpa'
+ 155.0  15 | 2020-04-20T06:42:21+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 35155
+ 155.0  15 | 2020-04-20T06:42:21+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50cbdb00>
+ 155.0  40 | c : DNS request from ('192.168.1.8', 54378) to None: 34 bytes
+ 155.1  15 | 2020-04-20T06:42:21+0000 [-] (UDP Port 35155 Closed)
+ 155.1  15 | 2020-04-20T06:42:21+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50cbdb00>
+ 155.5  15 | 2020-04-20T06:42:22+0000 [stdout#info] A query: b'www.apple.com'
+ 155.5  15 | 2020-04-20T06:42:22+0000 [stdout#info] A query: b'www.microsoft.com'
+ 155.5  15 | 2020-04-20T06:42:22+0000 [stdout#info] A query: b'api.apple-cloudkit.com'
+ 155.5  15 | 2020-04-20T06:42:22+0000 [stdout#info] A query: b'1-courier.sandbox.push.apple.com'
+ 155.5  15 | 2020-04-20T06:42:22+0000 [stdout#info] A query: b'8-courier.sandbox.push.apple.com'
+ 155.5  15 | 2020-04-20T06:42:22+0000 [stdout#info] A query: b'20-courier.push.apple.com'
+ 155.5  15 | 2020-04-20T06:42:22+0000 [stdout#info] A query: b'1-courier.push.apple.com'
+ 155.5  15 | 2020-04-20T06:42:22+0000 [stdout#info] Result for b'www.apple.com' is ['184.24.159.165']
+ 155.5  15 | 2020-04-20T06:42:22+0000 [stdout#info] Result for b'www.microsoft.com' is ['23.46.60.173']
+ 155.5  15 | 2020-04-20T06:42:22+0000 [stdout#info] Result for b'1-courier.sandbox.push.apple.com' is ['17.188.165.205', '17.188.166.14', '17.188.166.9', '17.188.165.200', '17.188.165.206', '17.188.166.18', '17.188.165.208', '17.188.166.17']
+ 155.6  15 | 2020-04-20T06:42:22+0000 [stdout#info] Result for b'20-courier.push.apple.com' is ['17.57.144.53', '17.57.144.52']
+ 155.6  15 | 2020-04-20T06:42:22+0000 [stdout#info] Result for b'api.apple-cloudkit.com' is ['17.248.143.92', '17.248.134.172', '17.248.134.10', '17.248.134.209', '17.248.134.206', '17.248.143.89', '17.248.134.173', '17.248.134.42']
+ 155.6  15 | 2020-04-20T06:42:22+0000 [stdout#info] Result for b'1-courier.push.apple.com' is ['17.57.144.52', '17.57.144.53']
+ 155.6  15 | 2020-04-20T06:42:22+0000 [stdout#info] Result for b'8-courier.sandbox.push.apple.com' is ['17.188.132.72', '17.188.136.186', '17.188.138.72', '17.188.135.186', '17.188.133.61', '17.188.138.70', '17.188.138.71', '17.188.134.202']
+ 155.6  15 | 2020-04-20T06:42:22+0000 [stdout#info] A query: b'gs-loc.apple.com'
+ 155.6  15 | 2020-04-20T06:42:22+0000 [stdout#info] Result for b'gs-loc.apple.com' is ['17.142.171.9', '17.142.171.8']
+ 156.5  40 | c : DNS request from ('192.168.1.8', 49408) to None: 33 bytes
+ 156.9  15 | 2020-04-20T06:42:23+0000 [stdout#info] A query: b'valid.apple.com'
+ 156.9  15 | 2020-04-20T06:42:23+0000 [stdout#info] Result for b'valid.apple.com' is ['17.253.21.204', '17.253.21.202']
+ 157.0  15 | 2020-04-20T06:42:23+0000 [stdout#info] A query: b'hangouts.google.com'
+ 157.0  15 | 2020-04-20T06:42:23+0000 [stdout#info] Result for b'hangouts.google.com' is ['172.217.12.238']
+ 157.0  40 | c : DNS request from ('192.168.1.8', 56257) to None: 32 bytes
+ 157.5  40 | c : DNS request from ('192.168.1.8', 49408) to None: 33 bytes
+ 157.6  15 | 2020-04-20T06:42:24+0000 [stdout#info] A query: b'mesu.apple.com'
+ 157.8  15 | 2020-04-20T06:42:24+0000 [stdout#info] Result for b'mesu.apple.com' is ['17.253.21.206', '17.253.21.204']
+ 158.0  15 | 2020-04-20T06:42:24+0000 [stdout#info] A query: b'valid.apple.com'
+ 158.0  15 | 2020-04-20T06:42:24+0000 [stdout#info] Result for b'valid.apple.com' is ['17.253.21.202', '17.253.21.204']
+ 158.0  40 | c : DNS request from ('192.168.1.8', 56257) to None: 32 bytes
+ 158.1  15 | 2020-04-20T06:42:25+0000 [stdout#info] A query: b'people-pa.clients6.google.com'
+ 158.1  15 | 2020-04-20T06:42:25+0000 [stdout#info] Result for b'people-pa.clients6.google.com' is ['172.217.7.138']
+ 158.7  15 | 2020-04-20T06:42:25+0000 [stdout#info] A query: b'mesu.apple.com'
+ 158.7  15 | 2020-04-20T06:42:25+0000 [stdout#info] Result for b'mesu.apple.com' is ['17.253.21.206', '17.253.21.204']
+ 159.2  40 | c : DNS request from ('192.168.1.8', 62141) to None: 48 bytes
+ 159.3  40 | c : DNS request from ('192.168.1.8', 63873) to None: 32 bytes
+ 159.4  15 | 2020-04-20T06:42:26+0000 [stdout#info] A query: b'ssl.gstatic.com'
+ 159.4  15 | 2020-04-20T06:42:26+0000 [stdout#info] Result for b'ssl.gstatic.com' is ['172.217.164.131']
+ 159.6  15 | 2020-04-20T06:42:26+0000 [stdout#info] A query: b'p10-keyvalueservice.icloud.com'
+ 159.6  15 | 2020-04-20T06:42:26+0000 [stdout#info] Result for b'p10-keyvalueservice.icloud.com' is ['17.248.134.175', '17.248.143.24', '17.248.134.172', '17.248.134.138', '17.248.134.155', '17.248.143.114', '17.248.134.200', '17.248.134.40']
+ 159.7  15 | 2020-04-20T06:42:26+0000 [stdout#info] A query: b'ocsp.apple.com'
+ 159.7  15 | 2020-04-20T06:42:26+0000 [stdout#info] Result for b'ocsp.apple.com' is ['17.253.21.202', '17.253.21.204']
+ 159.9  15 | 2020-04-20T06:42:26+0000 [stdout#info] A query: b'static.xx.fbcdn.net'
+ 159.9  15 | 2020-04-20T06:42:26+0000 [stdout#info] A query: b'external-bom1-1.xx.fbcdn.net'
+ 159.9  15 | 2020-04-20T06:42:26+0000 [stdout#info] Result for b'static.xx.fbcdn.net' is ['31.13.66.19']
+ 160.0  15 | 2020-04-20T06:42:26+0000 [stdout#info] Result for b'external-bom1-1.xx.fbcdn.net' is ['157.240.16.20']
+ 160.1  40 | c : DNS request from ('192.168.1.8', 53044) to None: 36 bytes
+ 160.2  15 | 2020-04-20T06:42:27+0000 [stdout#info] A query: b'scontent-bom1-1.xx.fbcdn.net'
+ 160.2  15 | 2020-04-20T06:42:27+0000 [stdout#info] Result for b'scontent-bom1-1.xx.fbcdn.net' is ['157.240.16.20']
+ 160.3  15 | 2020-04-20T06:42:27+0000 [stdout#info] A query: b'www.google.com'
+ 160.3  15 | 2020-04-20T06:42:27+0000 [stdout#info] Result for b'www.google.com' is ['172.217.12.228']
+ 161.1  40 | c : DNS request from ('192.168.1.8', 50059) to None: 44 bytes
+ 161.1  15 | 2020-04-20T06:42:27+0000 [stdout#info] A query: b'gateway.icloud.com'
+ 161.1  15 | 2020-04-20T06:42:27+0000 [stdout#info] Result for b'gateway.icloud.com' is ['17.248.134.176', '17.248.134.206', '17.248.134.204', '17.248.143.56', '17.248.134.138', '17.248.134.200', '17.248.134.172', '17.248.134.181']
+ 161.1  15 | 2020-04-20T06:42:27+0000 [stdout#info] A query: b'edge-chat.facebook.com'
+ 161.1  15 | 2020-04-20T06:42:27+0000 [stdout#info] Result for b'edge-chat.facebook.com' is ['31.13.66.4']
+ 161.1  15 | 2020-04-20T06:42:27+0000 [stdout#info] A query: b'capillarywsus.capillarytech.com'
+ 161.1  15 | 2020-04-20T06:42:27+0000 [stdout#info] getaddrinfo error: [Errno -2] Name does not resolve
+ 161.5  15 | 2020-04-20T06:42:28+0000 [stdout#info] A query: b'p10-escrowproxy.icloud.com'
+ 161.5  15 | 2020-04-20T06:42:28+0000 [stdout#info] Result for b'p10-escrowproxy.icloud.com' is ['17.248.134.206', '17.248.143.89', '17.248.143.122', '17.248.134.40', '17.248.134.233', '17.248.134.235', '17.248.134.140', '17.248.134.213']
+ 162.5  15 | 2020-04-20T06:42:29+0000 [stdout#info] A query: b'scontent-bom1-2.xx.fbcdn.net'
+ 162.6  15 | 2020-04-20T06:42:29+0000 [stdout#info] Result for b'scontent-bom1-2.xx.fbcdn.net' is ['31.13.79.26']
+ 163.0  15 | 2020-04-20T06:42:29+0000 [stdout#info] A query: b'video-bom1-1.xx.fbcdn.net'
+ 163.0  15 | 2020-04-20T06:42:29+0000 [stdout#info] Result for b'video-bom1-1.xx.fbcdn.net' is ['157.240.16.17']
+ 164.1  15 | 2020-04-20T06:42:31+0000 [Poll#info] Checkpoint
+ 165.0  15 | 2020-04-20T06:42:31+0000 [stdout#info] A query: b'www.gstatic.com'
+ 165.0  15 | 2020-04-20T06:42:31+0000 [stdout#info] Result for b'www.gstatic.com' is ['172.217.12.227']
+ 167.5  15 | 2020-04-20T06:42:33+0000 [stdout#info] A query: b'captive.apple.com'
+ 167.5  15 | 2020-04-20T06:42:33+0000 [stdout#info] Result for b'captive.apple.com' is ['17.253.21.204', '17.253.21.203']
+ 167.5  15 | 2020-04-20T06:42:34+0000 [stdout#info] A query: b'www.googleapis.com'
+ 167.5  15 | 2020-04-20T06:42:34+0000 [stdout#info] Result for b'www.googleapis.com' is ['172.217.12.234']
+ 167.9  15 | 2020-04-20T06:42:34+0000 [stdout#info] 6 query: b'local'
+ 167.9  15 | 2020-04-20T06:42:34+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 35465
+ 167.9  15 | 2020-04-20T06:42:34+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50a6b860>
+ 167.9  15 | 2020-04-20T06:42:34+0000 [-] (UDP Port 35465 Closed)
+ 167.9  15 | 2020-04-20T06:42:34+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50a6b860>
+ 168.1  15 | 2020-04-20T06:42:35+0000 [stdout#info] A query: b'fabric8.io'
+ 168.2  15 | 2020-04-20T06:42:35+0000 [stdout#info] Result for b'fabric8.io' is ['104.24.97.240', '104.24.96.240']
+ 168.2 TEL | Main process (bash --norc)
+ 168.2 TEL |  exited with code 1.
+ 168.2 TEL | END SPAN runner.py:725(wait_for_exit)   40.2s
+ 168.2 >>> | Your process exited with return code 1.
+ 168.2 TEL | EXITING successful session.
+ 168.2 >>> | Exit cleanup in progress
+ 168.2 TEL | (Cleanup) Terminate local process
+ 168.2 TEL | Local process is already dead (ret=1)
+ 168.2 TEL | (Cleanup) Kill BG process [40] sshuttle
+ 168.2  40 | >> pfctl -a sshuttle6-12300 -F all
+ 168.2 TEL | (Cleanup) Unmount remote filesystem
+ 168.2 TEL | [69] Running: umount -f /tmp/tel-enoqlsnl/fs
+ 168.2  40 | >> pfctl -X 9825586373510895421
+ 168.2  40 | >> pfctl -a sshuttle-12300 -F all
+ 168.2  40 | >> pfctl -X 9825586373701560605
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] A query: b'platform9.com'
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] A query: b'www.nginx.com'
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] A query: b'www.magalix.com'
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] A query: b'kubernetesbyexample.com'
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] A query: b'dzone.com'
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] Result for b'www.magalix.com' is ['104.17.117.180', '104.17.119.180', '104.17.120.180', '104.17.118.180', '104.17.121.180']
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] Result for b'dzone.com' is ['34.227.232.230', '52.203.227.177', '35.168.91.68']
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] Result for b'platform9.com' is ['104.155.148.126']
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] Result for b'www.nginx.com' is ['104.18.11.5', '104.18.10.5']
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] Result for b'kubernetesbyexample.com' is ['185.199.111.153', '185.199.109.153', '185.199.110.153', '185.199.108.153']
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] A query: b'bitbucket.org'
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] Result for b'bitbucket.org' is ['18.205.93.1', '18.205.93.2', '18.205.93.0']
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] A query: b'cloud.google.com'
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] Result for b'cloud.google.com' is ['172.217.13.78']
+ 168.4  15 | 2020-04-20T06:42:35+0000 [stdout#info] A query: b'www.consul.io'
+ 168.6  15 | 2020-04-20T06:42:35+0000 [stdout#info] Result for b'www.consul.io' is ['151.101.249.183']
+ 168.6  15 | 2020-04-20T06:42:35+0000 [stdout#info] A query: b'www.quora.com'
+ 168.6  15 | 2020-04-20T06:42:35+0000 [stdout#info] Result for b'www.quora.com' is ['151.101.249.2']
+ 168.7 TEL | [40] sshuttle: exit -15
+ 169.4 TEL | [69] ran in 1.19 secs.
+ 169.4 TEL | (Cleanup) Kill BG process [33] SSH port forward (socks and proxy poll)
+ 169.4 TEL | [33] SSH port forward (socks and proxy poll): exit 0
+ 169.4 TEL | (Cleanup) Kill Web server for proxy poll
+ 169.7  15 | 2020-04-20T06:42:36+0000 [stdout#info] 12 query: b'1.0.94.127.in-addr.arpa'
+ 169.7  15 | 2020-04-20T06:42:36+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 29845
+ 169.7  15 | 2020-04-20T06:42:36+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50cb6eb8>
+ 169.7  15 | 2020-04-20T06:42:36+0000 [-] (UDP Port 29845 Closed)
+ 169.7  15 | 2020-04-20T06:42:36+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50cb6eb8>
+ 169.9 TEL | (Cleanup) Kill BG process [16] kubectl port-forward
+ 169.9 TEL | [16] kubectl port-forward: exit -15
+ 169.9 TEL | (Cleanup) Kill BG process [15] kubectl logs
+ 169.9 TEL | [15] kubectl logs: exit -15
+ 169.9 TEL | Background process (kubectl logs) exited with return code -15. Command was:
+ 169.9 TEL |   kubectl --context default-context --namespace default logs -f telepresence-perm-97c469587-lw5j2 --container telepresence-perm --tail=10
+ 169.9 TEL | 
+ 169.9 TEL | Recent output was:
+ 169.9 TEL |   2020-04-20T06:42:35+0000 [stdout#info] Result for b'cloud.google.com' is ['172.217.13.78']
+ 169.9 TEL |   2020-04-20T06:42:35+0000 [stdout#info] A query: b'www.consul.io'
+ 169.9 TEL |   2020-04-20T06:42:35+0000 [stdout#info] Result for b'www.consul.io' is ['151.101.249.183']
+ 169.9 TEL |   2020-04-20T06:42:35+0000 [stdout#info] A query: b'www.quora.com'
+ 169.9 TEL |   2020-04-20T06:42:35+0000 [stdout#info] Result for b'www.quora.com' is ['151.101.249.2']
+ 169.9 TEL |   2020-04-20T06:42:36+0000 [stdout#info] 12 query: b'1.0.94.127.in-addr.arpa'
+ 169.9 TEL |   2020-04-20T06:42:36+0000 [DNSDatagramProtocol (UDP)] DNSDatagramProtocol starting on 29845
+ 169.9 TEL |   2020-04-20T06:42:36+0000 [DNSDatagramProtocol (UDP)] Starting protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50cb6eb8>
+ 169.9 TEL |   2020-04-20T06:42:36+0000 [-] (UDP Port 29845 Closed)
+ 169.9 TEL |   2020-04-20T06:42:36+0000 [-] Stopping protocol <twisted.names.dns.DNSDatagramProtocol object at 0x7f6f50cb6eb8>
+ 169.9 TEL | (Cleanup) Kill sudo privileges holder
+ 169.9 TEL | (Cleanup) Stop time tracking
+ 169.9 TEL | END SPAN main.py:40(main)  169.9s
+ 169.9 TEL | SPAN SUMMARY:
+ 169.9 TEL |  169.9s main.py:40(main)
+ 169.9 TEL |   14.5s   startup.py:83(set_kube_command)
+ 169.9 TEL |    0.1s     1 kubectl config current-context
+ 169.9 TEL |    7.1s     2 kubectl --context default-context version --short
+ 169.9 TEL |    0.1s     3 kubectl --context default-context config view -o json
+ 169.9 TEL |    4.7s     4 kubectl --context default-context get ns default
+ 169.9 TEL |    2.6s     5 kubectl --context default-context api-versions
+ 169.9 TEL |    0.0s   6 ssh -V
+ 169.9 TEL |    0.1s   7 sudo -n echo -n
+ 169.9 TEL |   10.5s   8 sudo echo -n
+ 169.9 TEL |    2.0s   9 kubectl --context default-context --namespace default get pods telepresence-co
+ 169.9 TEL |    2.4s   10 kubectl --context default-context --namespace default get deployment telepres
+ 169.9 TEL |   36.4s   remote.py:142(get_remote_info)
+ 169.9 TEL |    1.8s     remote.py:75(get_deployment_json)
+ 169.9 TEL |    1.8s       11 kubectl --context default-context --namespace default get deployment -o json
+ 169.9 TEL |   32.7s     12 kubectl --context default-context --namespace default get pod -o json
+ 169.9 TEL |    0.0s       13 sudo -n echo -n
+ 169.9 TEL |    1.8s     remote.py:104(wait_for_pod)
+ 169.9 TEL |    1.8s       14 kubectl --context default-context --namespace default get pod telepresence-pe
+ 169.9 TEL |    7.5s   connect.py:37(connect)
+ 169.9 TEL |    0.0s     17 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    0.0s     18 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    0.0s     19 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    0.0s     20 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    0.0s     21 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    0.0s     22 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    0.0s     23 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    0.0s     24 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    0.0s     25 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    0.0s     26 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    0.0s     27 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    0.0s     28 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    0.0s     29 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    0.0s     30 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    0.0s     31 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    3.4s     32 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+ 169.9 TEL |    6.4s   remote_env.py:29(get_remote_env)
+ 169.9 TEL |    6.4s     34 kubectl --context default-context --namespace default exec telepresence-perm-
+ 169.9 TEL |    5.4s   mount.py:30(mount_remote_volumes)
+ 169.9 TEL |    5.4s     35 sshfs -p 58113 -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/
+ 169.9 TEL |    0.0s       36 sudo -n echo -n
+ 169.9 TEL |   39.6s   vpn.py:271(connect_sshuttle)
+ 169.9 TEL |   26.7s     vpn.py:77(get_proxy_cidrs)
+ 169.9 TEL |    1.8s       37 kubectl --context default-context --namespace default get nodes -o json
+ 169.9 TEL |   20.7s       38 kubectl --context default-context --namespace default get pods -o json
+ 169.9 TEL |    4.2s       39 kubectl --context default-context --namespace default get services -o json
+ 169.9 TEL |   13.0s     vpn.py:294(connect_sshuttle,sshuttle-wait)
+ 169.9 TEL |    0.1s       41 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-0")'
+ 169.9 TEL |    0.3s       42 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-0.a.sanity
+ 169.9 TEL |    0.2s       43 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-1")'
+ 169.9 TEL |    0.5s       44 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-1.a.sanity
+ 169.9 TEL |    0.1s       45 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-2")'
+ 169.9 TEL |    0.1s       46 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-2.a.sanity
+ 169.9 TEL |    0.2s       47 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-3")'
+ 169.9 TEL |    0.3s       48 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-3.a.sanity
+ 169.9 TEL |    0.2s       49 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-4")'
+ 169.9 TEL |    0.0s         50 sudo -n echo -n
+ 169.9 TEL |    1.0s           51 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-4.a.sanity
+ 169.9 TEL |    0.2s           52 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-5")'
+ 169.9 TEL |    0.1s           53 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-5.a.sanity
+ 169.9 TEL |    0.2s           54 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-6")'
+ 169.9 TEL |    0.1s           55 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-6.a.sanity
+ 169.9 TEL |    0.1s           56 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-7")'
+ 169.9 TEL |    0.1s           57 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-7.a.sanity
+ 169.9 TEL |    0.5s           58 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-8")'
+ 169.9 TEL |    0.1s           59 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-8.a.sanity
+ 169.9 TEL |    0.6s           60 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-9")'
+ 169.9 TEL |    0.1s           61 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-9.a.sanity
+ 169.9 TEL |    3.5s           62 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-10")'
+ 169.9 TEL |    0.5s           63 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-10.a.sanit
+ 169.9 TEL |    0.5s           64 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-11")'
+ 169.9 TEL |    1.0s           65 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-11.a.sanit
+ 169.9 TEL |    1.1s           66 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-12")'
+ 169.9 TEL |    0.0s           67 sudo -n /usr/bin/pkill -HUP mDNSResponder
+ 169.9 TEL |   40.2s           runner.py:725(wait_for_exit)
+ 169.9 TEL |    0.0s             68 sudo -n echo -n
+ 169.9 TEL |    1.2s           69 umount -f /tmp/tel-enoqlsnl/fs
+ 169.9 TEL | (Cleanup) Remove temporary directory
+ 170.0 TEL | (Cleanup) Save caches
+ 170.7 TEL | (sudo privileges holder thread exiting)

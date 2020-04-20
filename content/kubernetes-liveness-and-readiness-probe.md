@@ -21,7 +21,7 @@ Liveness Probe
 --------------
 ![Kubernetes Liveness Probe](https://media.giphy.com/media/SYRBDJ0Pj3pSxx6Lft/giphy.gif)
 
-Developers and engineers often make mistakes. Sometimes, these mistakes don't get caught in our nightly or staging environments, and might spill over to production. Often, these mistakes result in applications that get stuck in tricky situations and hence cannot perform their designated operatiosn as usual. Sometimes, these corner cases can cause the application to crash during the most unexpected of circumstances, when it is not possible for an engineer to take a look and correct it.
+Developers and engineers often make mistakes. Sometimes, these mistakes don't get caught in our nightly or staging environments, and might spill over to production. Often, these mistakes result in applications that get stuck in tricky situations and hence cannot perform their designated operations as usual. Sometimes, these corner cases can cause the application to crash during the most unexpected of circumstances, when it is not possible for an engineer to take a look and correct it.
 
 ![Unexpected Circumstances](https://media.giphy.com/media/u5Pxn776rafRe/giphy.gif)
 

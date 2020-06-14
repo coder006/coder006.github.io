@@ -4,11 +4,21 @@
   
   <url>
     <loc>https://ambar.dev/</loc>
-    <lastmod>2020-06-12T18:12:47+05:30</lastmod>
+    <lastmod>2020-06-14T17:04:37+05:30</lastmod>
   </url>
   
   <url>
     <loc>https://ambar.dev/about/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ambar.dev/posts/elasticsearch-dr-s3-kubernetes/</loc>
+    <lastmod>2020-06-14T17:04:37+05:30</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ambar.dev/posts/</loc>
+    <lastmod>2020-06-14T17:04:37+05:30</lastmod>
   </url>
   
   <url>
@@ -33,11 +43,6 @@
   
   <url>
     <loc>https://ambar.dev/posts/kubernetes-readiness-probe/</loc>
-    <lastmod>2020-06-12T18:12:47+05:30</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://ambar.dev/posts/</loc>
     <lastmod>2020-06-12T18:12:47+05:30</lastmod>
   </url>
   

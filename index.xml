@@ -5,7 +5,7 @@
     <link>https://ambar.dev/</link>
     <description>Recent content in Home on Ambar Mehrotra</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Fri, 12 Jun 2020 18:12:47 +0530</lastBuildDate>
+    <lastBuildDate>Sun, 14 Jun 2020 17:04:37 +0530</lastBuildDate>
     
 	<atom:link href="https://ambar.dev/index.xml" rel="self" type="application/rss+xml" />
     
@@ -19,6 +19,15 @@
       <description>Mínimo is a Spanish word that roughly translate to Minimal.
 Minimo is a minimalist theme for Hugo.
 Minimo keeps the focus on your content and lets it shine!</description>
+    </item>
+    
+    <item>
+      <title>Elasticsearch Backup and Restore with AWS S3 in Kubernetes</title>
+      <link>https://ambar.dev/posts/elasticsearch-dr-s3-kubernetes/</link>
+      <pubDate>Sun, 14 Jun 2020 17:04:37 +0530</pubDate>
+      
+      <guid>https://ambar.dev/posts/elasticsearch-dr-s3-kubernetes/</guid>
+      <description>In my day job, I get a chance of working with things like Docker, Kubernetes, Terraform, and various cloud components across cloud providers. We have multiple Elasticsearch clusters running inside our Kubernetes cluster (EKS). These Elasticsearch clusters have been installed using the well-known package manager for Kubernetes &amp;ndash; Helm as Helm charts. Recently, I had to set up a disaster-recovery strategy for these Elasticsearch clusters to restore these clusters to a previous stable state in case of a failure.</description>
     </item>
     
     <item>

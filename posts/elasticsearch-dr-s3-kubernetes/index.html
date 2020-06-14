@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang='en' dir='auto'><head>
+  <meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='description' content='In my day job, I get a chance of working with things like Docker, Kubernetes, Terraform, and various cloud components across cloud providers. We have multiple Elasticsearch clusters running inside our Kubernetes cluster (EKS). These Elasticsearch clusters have been installed using the well-known package manager for Kubernetes &ndash; Helm as Helm charts. Recently, I had to set up a disaster-recovery strategy for these Elasticsearch clusters to restore these clusters to a previous stable state in case of a failure.'>
+<meta name='theme-color' content='#ffcd00'>
+
+<meta property='og:title' content='Elasticsearch Backup and Restore with AWS S3 in Kubernetes • Ambar Mehrotra'>
+<meta property='og:description' content='In my day job, I get a chance of working with things like Docker, Kubernetes, Terraform, and various cloud components across cloud providers. We have multiple Elasticsearch clusters running inside our Kubernetes cluster (EKS). These Elasticsearch clusters have been installed using the well-known package manager for Kubernetes &ndash; Helm as Helm charts. Recently, I had to set up a disaster-recovery strategy for these Elasticsearch clusters to restore these clusters to a previous stable state in case of a failure.'>
+<meta property='og:url' content='https://ambar.dev/posts/elasticsearch-dr-s3-kubernetes/'>
+<meta property='og:site_name' content='Ambar Mehrotra'>
+<meta property='og:type' content='article'><meta property='article:section' content='posts'><meta property='article:published_time' content='2020-06-14T17:04:37&#43;05:30'/><meta property='article:modified_time' content='2020-06-14T17:04:37&#43;05:30'/><meta name='twitter:card' content='summary'><meta name='twitter:site' content='@decoder006'>
+
+<meta name="generator" content="Hugo 0.72.0" />
+
+  <title>Elasticsearch Backup and Restore with AWS S3 in Kubernetes • Ambar Mehrotra</title>
+  <link rel='canonical' href='https://ambar.dev/posts/elasticsearch-dr-s3-kubernetes/'>
+  
+  
+  <link rel='icon' href='/images/profile-picture.png'>
+<link rel='stylesheet' href='/assets/css/main.ab98e12b.css'><link rel='stylesheet' href='/css/custom.css'><style>
+:root{--color-accent:#ffcd00;}
+</style>
+
+  
+
+</head>
+<body class='page type-posts has-sidebar'>
+
+  <div class='site'><div id='sidebar' class='sidebar'>
+  <a class='screen-reader-text' href='#main-menu'>Skip to Main Menu</a>
+
+  <div class='container'><section class='widget widget-about sep-after'>
+  <header>
+    
+    <div class='logo'>
+      <a href='/'>
+        <img src='/images/profile-picture.png'>
+      </a>
+    </div>
+    
+    <h2 class='title site-title '>
+      <a href='/'>
+      Ambar Mehrotra
+      </a>
+    </h2>
+    <div class='desc'>
+    Trying to build something meaningful, hoping to find 42 in it!
+    </div>
+  </header>
+
+</section>
+<section class='widget widget-sidebar_menu sep-after'><nav id='sidebar-menu' class='menu sidebar-menu' aria-label='Sidebar Menu'>
+    <div class='container'>
+      <ul><li class='item'>
+  <a href='/'>Home</a></li></ul>
+    </div>
+  </nav>
+
+</section><section class='widget widget-search sep-after'>
+  <header>
+    <h4 class='title widget-title'>Search</h4>
+  </header>
+
+  <form action='/search' id='search-form' class='search-form'>
+    <label>
+      <span class='screen-reader-text'>Search</span>
+      <input id='search-term' class='search-term' type='search' name='q' placeholder='Search&hellip;'>
+    </label></form>
+
+</section>
+<section class='widget widget-taxonomy_cloud sep-after'>
+  <header>
+    <h4 class='title widget-title'>Tags</h4>
+  </header>
+
+  <div class='container list-container'>
+  <ul class='list taxonomy-cloud'><li>
+        <a href='/tags/alicloud/' style='font-size:1em'>Alicloud</a>
+      </li><li>
+        <a href='/tags/aws/' style='font-size:1.6666666666666665em'>AWS</a>
+      </li><li>
+        <a href='/tags/cloud/' style='font-size:2em'>Cloud</a>
+      </li><li>
+        <a href='/tags/containers/' style='font-size:1.3333333333333333em'>Containers</a>
+      </li><li>
+        <a href='/tags/elasticsearch/' style='font-size:1em'>Elasticsearch</a>
+      </li><li>
+        <a href='/tags/helm/' style='font-size:1em'>Helm</a>
+      </li><li>
+        <a href='/tags/kubernetes/' style='font-size:1.6666666666666665em'>Kubernetes</a>
+      </li><li>
+        <a href='/tags/vpn/' style='font-size:1em'>VPN</a>
+      </li></ul>
+</div>
+
+
+</section>
+</div>
+
+  <div class='sidebar-overlay'></div>
+</div><div class='main'><a class='screen-reader-text' href='#content'>Skip to Content</a>
+
+<button id='sidebar-toggler' class='sidebar-toggler' aria-controls='sidebar'>
+  <span class='screen-reader-text'>Toggle Sidebar</span>
+  <span class='open'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <line x1="3" y1="12" x2="21" y2="12" />
+  <line x1="3" y1="6" x2="21" y2="6" />
+  <line x1="3" y1="18" x2="21" y2="18" />
+  
+</svg>
+</span>
+  <span class='close'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <line x1="18" y1="6" x2="6" y2="18" />
+  <line x1="6" y1="6" x2="18" y2="18" />
+  
+</svg>
+</span>
+</button><div class='header-widgets'>
+        <div class='container'>
+    
+    <style>.widget-breadcrumbs li:after{content:'\2f '}</style>
+  <section class='widget widget-breadcrumbs sep-after'>
+    <nav id='breadcrumbs'>
+      <ol><li><a href='/'>Home</a></li><li><a href='/posts/'>Posts</a></li><li><span>Elasticsearch Backup and Restore with AWS S3 in Kubernetes</span></li></ol>
+    </nav>
+  </section></div>
+      </div>
+
+      <header id='header' class='header site-header'>
+        <div class='container sep-after'>
+          <div class='header-info'><p class='site-title title'>Ambar Mehrotra</p><p class='desc site-desc'>Trying to build something meaningful, hoping to find 42 in it!</p>
+          </div>
+        </div>
+      </header>
+
+      <main id='content'>
+
+
+<article lang='en' class='entry'>
+  <header class='header entry-header'>
+  <div class='container sep-after'>
+    <div class='header-info'>
+      <h1 class='title'>Elasticsearch Backup and Restore with AWS S3 in Kubernetes</h1>
+      
+
+    </div>
+    <div class='entry-meta'>
+  <span class='posted-on'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+  <line x1="16" y1="2" x2="16" y2="6"/>
+  <line x1="8" y1="2" x2="8" y2="6"/>
+  <line x1="3" y1="10" x2="21" y2="10"/>
+  
+</svg>
+<span class='screen-reader-text'>Posted on </span>
+  <time class='entry-date' datetime='2020-06-14T17:04:37&#43;05:30'>2020, Jun 14</time>
+</span>
+
+  
+  
+<span class='reading-time'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <circle cx="12" cy="12" r="10"/>
+  <polyline points="12 6 12 12 15 15"/>
+  
+</svg>
+5 mins read
+</span>
+
+
+</div>
+
+
+  </div>
+</header>
+
+  
+  
+
+  <div class='container entry-content'>
+  <p>In my day job, I get a chance of working with things like Docker, Kubernetes, Terraform, and various cloud components across cloud providers. We have multiple Elasticsearch clusters running inside our Kubernetes cluster (EKS). These Elasticsearch clusters have been installed using the well-known package manager for Kubernetes &ndash; <a href="https://helm.sh/">Helm</a> as Helm charts. Recently, I had to set up a disaster-recovery strategy for these Elasticsearch clusters to restore these clusters to a previous stable state in case of a failure.</p>
+<p>The process involved taking regular snapshots of the Elasticsearch cluster and backing them up in an <strong>S3 bucket</strong>. These backups can later be used to restore the cluster state at a given point in time in case of a disaster. Although the process was not that complicated and was more or less documented, I still had to google some configuration options for it to get to work properly, so I thought of just mentioning the exact necessary steps in a small blog post.</p>
+<blockquote>
+<p>NOTE: If you are using Elasticsearch version 7.5 and above, Elasticsearch has a pretty great module called <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.x/getting-started-snapshot-lifecycle-management.html">Snapshot Lifecycle Management</a> and I suggest you check that out.</p>
+</blockquote>
+<p>The main idea behind the setup goes like the following:</p>
+<ul>
+<li>Configure the S3 repository plugin for the Elasticsearch cluster</li>
+<li>Call the ES snapshot API at regular intervals to take incremental snapshots</li>
+<li>Use the restore API to restore the indexes or cluster state from these backups</li>
+</ul>
+<p>The steps for setting for achieving the above-mentioned goals can be divided into 3 main parts:</p>
+<h2 id="enable-the-s3-repository-plugin">Enable the S3 repository plugin</h2>
+<p>Enabling plugins in Elasticsearch requires a restart of the ES cluster. Therefore, the official documentation suggests creating a custom Docker image that installs the S3 plugin inside the docker image itself. According to the docs:</p>
+<blockquote>
+<p>There are a couple of reasons we recommend this.</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>Tying the availability of Elasticsearch to the download service to install plugins is not a great idea or something that we recommend. Especially in Kubernetes where it is normal and expected for a container to be moved to another host at random times.</li>
+<li>Mutating the state of a running Docker image (by installing plugins) goes against best practices of containers and immutable infrastructure.</li>
+</ul>
+</blockquote>
+<p>So, to build a docker image with s3 repository plugin enabled, you can use the following Dockerfile:</p>
+<pre><code>ARG elasticsearch_version
+FROM docker.elastic.co/elasticsearch/elasticsearch:${elasticsearch_version}
+
+RUN bin/elasticsearch-plugin install --batch repository-s3
+</code></pre><p>Enabling plugins in ES requires extra permissions, the <code>--batch</code> flag tells ES to give any required permissions for the installation of the plugin without prompting for confirmation.</p>
+<h2 id="configure-elasticsearch-to-use-s3-bucket-for-storing-snapshots">Configure Elasticsearch to use S3 bucket for storing snapshots</h2>
+<p>There are many parameters you can adjust while registering an S3 bucket for storing Elasticsearch snapshots and for a complete set of features you can take a look at the <a href="https://www.elastic.co/guide/en/elasticsearch/plugins/current/repository-s3-repository.html">official documentation</a>. For a basic setup, you can register the S3 bucket by making a curl call to the repository endpoint of ES:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">PUT _snapshot<span style="color:#f92672">/</span>my_s3_repository
+{
+  <span style="color:#e6db74">&#34;type&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;s3&#34;</span>,
+  <span style="color:#e6db74">&#34;settings&#34;</span><span style="color:#f92672">:</span> {
+    <span style="color:#e6db74">&#34;bucket&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;my_bucket_name&#34;</span>,
+    <span style="color:#e6db74">&#34;another_setting&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;setting_value&#34;</span>
+  }
+}
+</code></pre></div><h2 id="configure-permissions-that-allow-elasticsearch-pod-to-access-the-s3-bucket">Configure permissions that allow Elasticsearch pod to access the S3 bucket</h2>
+<p>Thanks to amazing projects like <a href="https://github.com/jtblin/kube2iam">kube2iam</a> that help you easily provide required IAM access to individual Kubernetes objects, this job has become quite easy. The helm chart for Elasticsearch has the provision of taking <code>podAnnotations</code> as an input. These annotations are applied to the Elasticsearch pods and can leverage the full functionality of kube2iam for accessing the S3 bucket.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#66d9ef">podAnnotations</span>:  
+  <span style="color:#66d9ef">iam.amazonaws.com/role</span>: <span style="color:#e6db74">&#34;my-iam-role&#34;</span>
+</code></pre></div><blockquote>
+<p>The corresponding IAM role can be easily generated using AWS clients like boto3 or AWS plugins in Terraform, or any other AWS client at your disposal.</p>
+</blockquote>
+<h2 id="informing-the-elasticsearch-helm-chart-about-es-version">Informing the Elasticsearch Helm chart about ES version</h2>
+<p>This was one of the settings that were not mentioned in the plugins documentation in a straightforward manner and I had to search around a bit to figure this out. You need to set the <code>esMajorVersion</code> flag as well in case you are using a custom image and not running the default Elasticsearch version. For example, I had to set <code>esMajorVersion: 6</code> as I was running version 6.3.1 of Elasticsearch.
+You can have a look at the Elasticsearch <a href="https://github.com/elastic/helm-charts/blob/master/elasticsearch/templates/statefulset.yaml#L250">statefulset</a> for checking the exact usage of this flag.</p>
+<p>That&rsquo;s it, now we are ready to take Elasticsearch snapshots or restore from them.</p>
+<h2 id="taking-snapshots">Taking Snapshots</h2>
+<p>This part is pretty straightforward. Elasticsearch provides a snapshot API which can be triggered to take backups of the entire cluster state or specific indexes.</p>
+<p>For snapshots of the entire cluster, you can use the following curl call</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">PUT <span style="color:#f92672">/</span>_snapshot<span style="color:#f92672">/</span>my_backup<span style="color:#f92672">/</span>snapshot_1<span style="color:#f92672">?</span>wait_for_completion<span style="color:#f92672">=</span>true
+</code></pre></div><p>You can also specify exact indexes that you want to take backup of:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">PUT <span style="color:#f92672">/</span>_snapshot<span style="color:#f92672">/</span>my_backup<span style="color:#f92672">/</span>snapshot_2<span style="color:#f92672">?</span>wait_for_completion<span style="color:#f92672">=</span>true
+{
+  <span style="color:#e6db74">&#34;indices&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;index_1,index_2&#34;</span>,
+  <span style="color:#e6db74">&#34;ignore_unavailable&#34;</span><span style="color:#f92672">:</span> true,
+  <span style="color:#e6db74">&#34;include_global_state&#34;</span><span style="color:#f92672">:</span> false,
+  <span style="color:#e6db74">&#34;metadata&#34;</span><span style="color:#f92672">:</span> {
+    <span style="color:#e6db74">&#34;taken_by&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;kimchy&#34;</span>,
+    <span style="color:#e6db74">&#34;taken_because&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;backup before upgrading&#34;</span>
+  }
+}
+</code></pre></div><p>Once a snapshot is created information about this snapshot can be obtained using the following command:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">GET <span style="color:#f92672">/</span>_snapshot<span style="color:#f92672">/</span>my_backup<span style="color:#f92672">/</span>snapshot_1
+</code></pre></div><p>Also, for automating the process of taking regular backups, you can use Kubernetes cronjobs for periodically making these API calls to the Elasticsearch backup endpoint.</p>
+<h2 id="restoring-from-a-snapshot">Restoring from a snapshot</h2>
+<p>The restore API is pretty simple as well. By default, all indices in the snapshot are restored, and the cluster state is not restored. You can make the following curl call for restoring from a snapshot:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">POST <span style="color:#f92672">/</span>_snapshot<span style="color:#f92672">/</span>my_backup<span style="color:#f92672">/</span>snapshot_1<span style="color:#f92672">/</span>_restore
+</code></pre></div><p>You can also provide index level information while restoring from a snapshot:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">POST <span style="color:#f92672">/</span>_snapshot<span style="color:#f92672">/</span>my_backup<span style="color:#f92672">/</span>snapshot_1<span style="color:#f92672">/</span>_restore
+{
+  <span style="color:#e6db74">&#34;indices&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;index_1,index_2&#34;</span>,
+  <span style="color:#e6db74">&#34;ignore_unavailable&#34;</span><span style="color:#f92672">:</span> true,
+  <span style="color:#e6db74">&#34;include_global_state&#34;</span><span style="color:#f92672">:</span> false,              
+  <span style="color:#e6db74">&#34;rename_pattern&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;index_(.+)&#34;</span>,
+  <span style="color:#e6db74">&#34;rename_replacement&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;restored_index_$1&#34;</span>,
+  <span style="color:#e6db74">&#34;include_aliases&#34;</span><span style="color:#f92672">:</span> false
+}
+</code></pre></div><p>The restore operation can be performed on a functioning cluster. However, an existing index can be only restored if it’s <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.7/indices-open-close.html">closed</a> and has the same number of shards as the index in the snapshot.</p>
+<p>That&rsquo;s All Folks!</p>
+<p>Happy Coding! Cheers :)</p>
+
+</div>
+
+  
+<footer class='entry-footer'>
+  <div class='container sep-before'>
+  </div>
+</footer>
+
+
+</article>
+
+<nav class='entry-nav'>
+  <div class='container'><div class='prev-entry sep-before'>
+      <a href='/posts/kubernetes-readiness-probe/'>
+        <span aria-hidden='true'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <line x1="20" y1="12" x2="4" y2="12"/>
+  <polyline points="10 18 4 12 10 6"/>
+  
+</svg>
+ Previous</span>
+        <span class='screen-reader-text'>Previous post: </span>Kubernetes Readiness Probe</a>
+    </div></div>
+</nav>
+
+
+
+
+      </main>
+
+      <footer id='footer' class='footer'>
+        <div class='container sep-before'><section class='widget widget-social_menu sep-after'><nav aria-label='Social Menu'>
+    <ul><li>
+        <a href='https://github.com/coder006' target='_blank' rel='noopener'>
+          <span class='screen-reader-text'>Open Github account in new tab</span><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+  
+</svg>
+</a>
+      </li><li>
+        <a href='https://twitter.com/decoder006' target='_blank' rel='noopener'>
+          <span class='screen-reader-text'>Open Twitter account in new tab</span><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+  
+</svg>
+</a>
+      </li><li>
+        <a href='https://instagram.com/_notanengineer' target='_blank' rel='noopener'>
+          <span class='screen-reader-text'>Open Instagram account in new tab</span><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+  <line x1="17.5" y1="6.5" x2="17.5" y2="6.5"/>
+  
+</svg>
+</a>
+      </li><li>
+        <a href='mailto:mehrotraambar@gmail.com' target='_blank' rel='noopener'>
+          <span class='screen-reader-text'>Contact via Email</span><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+  <polyline points="22,6 12,13 2,6"/>
+  
+</svg>
+</a>
+      </li></ul>
+  </nav>
+</section><div class='copyright'>
+  <p> &copy; 2020 Ambar Mehrotra </p>
+</div>
+
+        </div>
+      </footer>
+
+    </div>
+  </div><script>window.__assets_js_src="/assets/js/"</script>
+
+<script src='/assets/js/main.c3bcf2df.js'></script><script src='/js/custom.js'></script>
+
+</body>
+
+</html>
+

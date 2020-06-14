@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang='en' dir='auto'><head>
+  <meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='description' content='Github Repository: tf-aws-alicloud-vpn
+ Note: This is not a guide on the internals of a Virtual Private Network. Rather, this post outlines how to setup a VPN connection between AWS and Alicloud. This guide uses Terraform for making API calls and state management. You can chose to use any HTTP client or aws and alicloud CLIs as well for making the same API calls and end up with a working VPN connection.'>
+<meta name='theme-color' content='#ffcd00'>
+
+<meta property='og:title' content='Aws Alicloud Vpn Setup Terraform • Ambar Mehrotra'>
+<meta property='og:description' content='Github Repository: tf-aws-alicloud-vpn
+ Note: This is not a guide on the internals of a Virtual Private Network. Rather, this post outlines how to setup a VPN connection between AWS and Alicloud. This guide uses Terraform for making API calls and state management. You can chose to use any HTTP client or aws and alicloud CLIs as well for making the same API calls and end up with a working VPN connection.'>
+<meta property='og:url' content='https://ambar.dev/posts/aws-alicloud-vpn-setup-terraform/'>
+<meta property='og:site_name' content='Ambar Mehrotra'>
+<meta property='og:type' content='article'><meta property='article:section' content='posts'><meta property='article:tag' content='Cloud'><meta property='article:tag' content='AWS'><meta property='article:tag' content='Alicloud'><meta property='article:tag' content='VPN'><meta property='article:published_time' content='2020-03-19T20:30:00&#43;05:30'/><meta property='article:modified_time' content='2020-03-19T20:30:00&#43;05:30'/><meta name='twitter:card' content='summary'><meta name='twitter:site' content='@decoder006'>
+
+<meta name="generator" content="Hugo 0.72.0" />
+
+  <title>Aws Alicloud Vpn Setup Terraform • Ambar Mehrotra</title>
+  <link rel='canonical' href='https://ambar.dev/posts/aws-alicloud-vpn-setup-terraform/'>
+  
+  
+  <link rel='icon' href='/images/profile-picture.png'>
+<link rel='stylesheet' href='/assets/css/main.ab98e12b.css'><link rel='stylesheet' href='/css/custom.css'><style>
+:root{--color-accent:#ffcd00;}
+</style>
+
+  
+
+</head>
+<body class='page type-posts has-sidebar'>
+
+  <div class='site'><div id='sidebar' class='sidebar'>
+  <a class='screen-reader-text' href='#main-menu'>Skip to Main Menu</a>
+
+  <div class='container'><section class='widget widget-about sep-after'>
+  <header>
+    
+    <div class='logo'>
+      <a href='/'>
+        <img src='/images/profile-picture.png'>
+      </a>
+    </div>
+    
+    <h2 class='title site-title '>
+      <a href='/'>
+      Ambar Mehrotra
+      </a>
+    </h2>
+    <div class='desc'>
+    Trying to build something meaningful, hoping to find 42 in it!
+    </div>
+  </header>
+
+</section>
+<section class='widget widget-sidebar_menu sep-after'><nav id='sidebar-menu' class='menu sidebar-menu' aria-label='Sidebar Menu'>
+    <div class='container'>
+      <ul><li class='item'>
+  <a href='/'>Home</a></li></ul>
+    </div>
+  </nav>
+
+</section><section class='widget widget-search sep-after'>
+  <header>
+    <h4 class='title widget-title'>Search</h4>
+  </header>
+
+  <form action='/search' id='search-form' class='search-form'>
+    <label>
+      <span class='screen-reader-text'>Search</span>
+      <input id='search-term' class='search-term' type='search' name='q' placeholder='Search&hellip;'>
+    </label></form>
+
+</section>
+<section class='widget widget-taxonomy_cloud sep-after'>
+  <header>
+    <h4 class='title widget-title'>Tags</h4>
+  </header>
+
+  <div class='container list-container'>
+  <ul class='list taxonomy-cloud'><li>
+        <a href='/tags/alicloud/' style='font-size:1em'>Alicloud</a>
+      </li><li>
+        <a href='/tags/aws/' style='font-size:1.6666666666666665em'>AWS</a>
+      </li><li>
+        <a href='/tags/cloud/' style='font-size:2em'>Cloud</a>
+      </li><li>
+        <a href='/tags/containers/' style='font-size:1.3333333333333333em'>Containers</a>
+      </li><li>
+        <a href='/tags/elasticsearch/' style='font-size:1em'>Elasticsearch</a>
+      </li><li>
+        <a href='/tags/helm/' style='font-size:1em'>Helm</a>
+      </li><li>
+        <a href='/tags/kubernetes/' style='font-size:1.6666666666666665em'>Kubernetes</a>
+      </li><li>
+        <a href='/tags/vpn/' style='font-size:1em'>VPN</a>
+      </li></ul>
+</div>
+
+
+</section>
+</div>
+
+  <div class='sidebar-overlay'></div>
+</div><div class='main'><a class='screen-reader-text' href='#content'>Skip to Content</a>
+
+<button id='sidebar-toggler' class='sidebar-toggler' aria-controls='sidebar'>
+  <span class='screen-reader-text'>Toggle Sidebar</span>
+  <span class='open'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <line x1="3" y1="12" x2="21" y2="12" />
+  <line x1="3" y1="6" x2="21" y2="6" />
+  <line x1="3" y1="18" x2="21" y2="18" />
+  
+</svg>
+</span>
+  <span class='close'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <line x1="18" y1="6" x2="6" y2="18" />
+  <line x1="6" y1="6" x2="18" y2="18" />
+  
+</svg>
+</span>
+</button><div class='header-widgets'>
+        <div class='container'>
+    
+    <style>.widget-breadcrumbs li:after{content:'\2f '}</style>
+  <section class='widget widget-breadcrumbs sep-after'>
+    <nav id='breadcrumbs'>
+      <ol><li><a href='/'>Home</a></li><li><a href='/posts/'>Posts</a></li><li><span>Aws Alicloud Vpn Setup Terraform</span></li></ol>
+    </nav>
+  </section></div>
+      </div>
+
+      <header id='header' class='header site-header'>
+        <div class='container sep-after'>
+          <div class='header-info'><p class='site-title title'>Ambar Mehrotra</p><p class='desc site-desc'>Trying to build something meaningful, hoping to find 42 in it!</p>
+          </div>
+        </div>
+      </header>
+
+      <main id='content'>
+
+
+<article lang='en' class='entry'>
+  <header class='header entry-header'>
+  <div class='container sep-after'>
+    <div class='header-info'>
+      <h1 class='title'>Aws Alicloud Vpn Setup Terraform</h1>
+      
+
+    </div>
+    <div class='entry-meta'>
+  <span class='posted-on'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+  <line x1="16" y1="2" x2="16" y2="6"/>
+  <line x1="8" y1="2" x2="8" y2="6"/>
+  <line x1="3" y1="10" x2="21" y2="10"/>
+  
+</svg>
+<span class='screen-reader-text'>Posted on </span>
+  <time class='entry-date' datetime='2020-03-19T20:30:00&#43;05:30'>2020, Mar 19</time>
+</span>
+
+  
+  
+<span class='reading-time'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <circle cx="12" cy="12" r="10"/>
+  <polyline points="12 6 12 12 15 15"/>
+  
+</svg>
+6 mins read
+</span>
+
+
+</div>
+
+
+  </div>
+</header>
+
+  
+  
+
+  <div class='container entry-content'>
+  <p>Github Repository: <a href="https://github.com/coder006/tf-aws-alicloud-vpn.git" title="Github Repository">tf-aws-alicloud-vpn</a></p>
+<blockquote>
+<p><em><strong>Note</strong></em>:
+This is not a guide on the internals of a Virtual Private Network. Rather, this post outlines how to setup a VPN connection between AWS and Alicloud. This guide uses Terraform for making API calls and state management. You can chose to use any HTTP client or aws and alicloud CLIs as well for making the same API calls and end up with a working VPN connection.</p>
+</blockquote>
+<h2 id="problem-statement">Problem Statement</h2>
+<p>When you are working in a multicloud environment, many scenarios involve establishing a communication channel between services and resources that lie across cloud providers. For example, you might have a common <strong>Rundeck</strong> machine that deployes the build binaries onto virtual machines residing in AWS as well as Azure. Another example might be a script in your CI/CD platform that interacts periodically with resources across cloud providers like <strong>RDS</strong>, <strong>Mongo</strong>, <strong>RabbitMQ</strong>, etc., for regularly monitoring or updating different ACL Policies.</p>
+<p><img src="https://www.simform.com/wp-content/uploads/2017/11/Blog-Diagram1.png" alt="Multi Cloud Architecture" title="Multi Cloud Architecture"></p>
+<p>Creating a VPN connection helps you securely access resources on one cloud provider from another over an encrypted connection. A VPN connection helps you avoid the hassle of exposing public endpoints for each resource and then securing it. You can simply go ahead and whietelist a CIDR block across the VPCs and all your traffic in the given CIDR range will then be routed over this secure, encrypted connection.</p>
+<h2 id="vpn-setup">VPN Setup</h2>
+<p><img src="https://i.imgur.com/x3i3MC7.png" alt="Aws Alicloud VPN Architecture"></p>
+<p>Setting up a VPN connection mainly involves setting up the following components in both AWS and Alicloud:</p>
+<ul>
+<li>VPN Gateway</li>
+<li>Customer Gateway</li>
+<li>VPN Connection</li>
+<li>Connection Route</li>
+</ul>
+<p>First and foremost, following are the cluster specific variables that we will need for AWS and Alicloud:</p>
+<h3 id="variables-and-cluster-definition">Variables and Cluster Definition</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e"># Default region: Singapore
+</span><span style="color:#75715e"></span>variable <span style="color:#e6db74">&#34;aws_vpc&#34;</span> {
+  type <span style="color:#f92672">=</span> object({
+    region    <span style="color:#f92672">=</span> string
+    profile   <span style="color:#f92672">=</span> string
+    vpc_id    <span style="color:#f92672">=</span> string
+    cidr      <span style="color:#f92672">=</span> string
+    subnet_id <span style="color:#f92672">=</span> string
+  })
+
+  <span style="color:#66d9ef">default</span> <span style="color:#f92672">=</span> {
+    region    <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;ap-southeast-1&#34;</span>
+    profile   <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;aws-profile&#34;</span>
+    vpc_id    <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;123456789&#34;</span>
+    cidr      <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;172.10.0.0/16&#34;</span>
+    subnet_id <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;subnet-123&#34;</span>
+  }
+}
+
+<span style="color:#75715e"># Default region: Singapore
+</span><span style="color:#75715e"># vswitch: AWS subnet equivalent in Alicloud
+</span><span style="color:#75715e"></span>variable <span style="color:#e6db74">&#34;alicloud_vpc&#34;</span> {
+  type <span style="color:#f92672">=</span> object({
+    region      <span style="color:#f92672">=</span> string
+    profile     <span style="color:#f92672">=</span> string
+    vpc_id      <span style="color:#f92672">=</span> string
+    cidr        <span style="color:#f92672">=</span> string
+    vswitch_id  <span style="color:#f92672">=</span> string
+  })
+
+  <span style="color:#66d9ef">default</span> <span style="color:#f92672">=</span> {
+    region      <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;ap-southeast-1&#34;</span>
+    profile     <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;alicloud-profile&#34;</span>
+    vpc_id      <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;987654321&#34;</span>
+    cidr        <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;172.20.0.0/16&#34;</span>
+    vswitch_id  <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;vswitch-123&#34;</span>
+  }
+}
+</code></pre></div><h3 id="terraform-providers-for-aws-and-alicloud">Terraform Providers for AWS and Alicloud</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">provider <span style="color:#e6db74">&#34;aws&#34;</span> {
+  region  <span style="color:#f92672">=</span> var.aws_vpc.region
+  version <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;~&gt; 2.45.0&#34;</span>
+  profile <span style="color:#f92672">=</span> var.aws_vpc.profile
+}
+
+provider <span style="color:#e6db74">&#34;alicloud&#34;</span> {
+  region  <span style="color:#f92672">=</span> var.alicloud_vpc.region
+  version <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;1.71.1&#34;</span>
+  profile <span style="color:#f92672">=</span> var.alicloud_vpc.profile
+}
+</code></pre></div><p>The first step is creating VPN Gateways in both Alicloud and AWS:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">resource <span style="color:#e6db74">&#34;alicloud_vpn_gateway&#34;</span> <span style="color:#e6db74">&#34;aws_vpn_gateway&#34;</span> {
+  name                 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;AWS-VPN-Gateway&#34;</span>
+  vpc_id               <span style="color:#f92672">=</span> var.alicloud_vpc.vpc_id
+  bandwidth            <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;10&#34;</span>
+  enable_ssl           <span style="color:#f92672">=</span> false
+  instance_charge_type <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;PostPaid&#34;</span>
+  description          <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;AWS-VPN-Gateway&#34;</span>
+  vswitch_id           <span style="color:#f92672">=</span> var.alicloud_vpc.vswitch_id
+}
+
+resource <span style="color:#e6db74">&#34;aws_vpn_gateway&#34;</span> <span style="color:#e6db74">&#34;alicloud_vpn_gateway&#34;</span> {
+  vpc_id <span style="color:#f92672">=</span> var.aws_vpc.vpc_id
+
+  tags <span style="color:#f92672">=</span> {
+    Name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Alicloud-VPN-GW&#34;</span>
+  }
+}
+</code></pre></div><h2 id="vpn-setup-in-aws">VPN Setup in AWS</h2>
+<p>Creating the VPN Gateway will give us a publically accessible IP address of that gateway. In the first step, we will use the IP address of the Alicloud VPN Gateway to setup AWS side of things. Later on, we will repeat the same process in for Alicloud as well.</p>
+<h3 id="aws-customer-gateway">AWS Customer Gateway</h3>
+<p>According to AWS:</p>
+<blockquote>
+<p>A customer gateway is a resource in AWS that provides information to AWS about your Customer Gateway Device</p>
+</blockquote>
+<p>A Customer Gateway basically lets AWS know about the remote/destination address where the traffic should be forwarded if the destination IP belongs to the Alicloud CIDR range</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">resource <span style="color:#e6db74">&#34;aws_customer_gateway&#34;</span> <span style="color:#e6db74">&#34;alicloud_vpn_gw&#34;</span> {
+  bgp_asn    <span style="color:#f92672">=</span> <span style="color:#ae81ff">65000</span>
+  ip_address <span style="color:#f92672">=</span> alicloud_vpn_gateway.aws_vpn_gateway.internet_ip
+  type       <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;ipsec.1&#34;</span>
+
+  tags <span style="color:#f92672">=</span> {
+    Name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;alicloud-customer-gateway&#34;</span>
+  }
+}
+</code></pre></div><h3 id="vpn-connection">VPN Connection</h3>
+<p><img src="https://media.giphy.com/media/njYrp176NQsHS/giphy-downsized-large.gif" alt="You Shall Not Pass"></p>
+<p>A VPN Connection resource in AWS creates 2 <em>Tunnels</em> between your VPC and the remote network (Alicloud Network represented by <code>customer_gateway_id</code> in this case). AWS will create 2 tunnels for redundancy. In case one of the tunnels goes down, the traffic is automatically routed through the other tunnel</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">resource <span style="color:#e6db74">&#34;aws_vpn_connection&#34;</span> <span style="color:#e6db74">&#34;alicloud_vpn_connection&#34;</span> {
+  vpn_gateway_id      <span style="color:#f92672">=</span> aws_vpn_gateway.alicloud_vpn_gateway.id
+  customer_gateway_id <span style="color:#f92672">=</span> aws_customer_gateway.alicloud_vpn_gw.id
+  type                <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;ipsec.1&#34;</span>
+  static_routes_only  <span style="color:#f92672">=</span> true
+}
+</code></pre></div><h3 id="vpn-connection-route-entry">VPN Connection Route Entry</h3>
+<p>This entry tells the VPN connection created in the previous step about the CIDR range of the destination</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">resource <span style="color:#e6db74">&#34;aws_vpn_connection_route&#34;</span> <span style="color:#e6db74">&#34;alicloud&#34;</span> {
+  destination_cidr_block <span style="color:#f92672">=</span> var.alicloud_vpc.cidr
+  vpn_connection_id      <span style="color:#f92672">=</span> aws_vpn_connection.alicloud_vpn_connection.id
+}
+</code></pre></div><h3 id="aws-route-table-modification">AWS Route Table Modification</h3>
+<p>Next we need to fetch the route table of the private subnet and modify the route table to tell AWS to forward all the traffic ,belonging to the CIDR range of the destination, to the VPN Gateway that we created above</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">data <span style="color:#e6db74">&#34;aws_route_table&#34;</span> <span style="color:#e6db74">&#34;aws_private_subnet_rt&#34;</span> {
+  subnet_id <span style="color:#f92672">=</span> var.aws_vpc.subnet_id
+}
+
+resource <span style="color:#e6db74">&#34;aws_route&#34;</span> <span style="color:#e6db74">&#34;r&#34;</span> {
+  route_table_id            <span style="color:#f92672">=</span> data.aws_route_table.aws_private_subnet_rt.id
+  destination_cidr_block    <span style="color:#f92672">=</span> var.alicloud_vpc.cidr
+  gateway_id <span style="color:#f92672">=</span> aws_vpn_gateway.alicloud_vpn_gateway.id
+}
+</code></pre></div><p>Once the AWS setup is done, we are going to repeat the same steps for Alicloud as well. I am not going to explain the terminologies again for Alicloud as they are more or less the same.</p>
+<h2 id="vpn-setup-in-alicloud">VPN Setup in Alicloud</h2>
+<p>First of all, we will create 2 customer gateways in Alicloud - one for each of the <em>Tunnels</em> created by the <em>VPN Connection</em> in AWS. The <code>ip_address</code> parameter will contain the IP address of each of the tunnels</p>
+<h3 id="customer-gateway">Customer Gateway</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">resource <span style="color:#e6db74">&#34;alicloud_vpn_customer_gateway&#34;</span> <span style="color:#e6db74">&#34;aws_customer_gateway_1&#34;</span> {
+  name        <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;AWSCustomerGateway1&#34;</span>
+  ip_address  <span style="color:#f92672">=</span> aws_vpn_connection.alicloud_vpn_connection.tunnel1_address
+  description <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;AWSCustomerGateway1&#34;</span>
+}
+
+resource <span style="color:#e6db74">&#34;alicloud_vpn_customer_gateway&#34;</span> <span style="color:#e6db74">&#34;aws_customer_gateway_2&#34;</span> {
+  name        <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;AWSCustomerGateway2&#34;</span>
+  ip_address  <span style="color:#f92672">=</span> aws_vpn_connection.alicloud_vpn_connection.tunnel2_address
+  description <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;AWSCustomerGateway2&#34;</span>
+}
+</code></pre></div><h3 id="vpn-connection-1">VPN Connection</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e"># `effect_immediately` parameter determines weather to delete a successfully negotiated IPsec tunnel and initiate a negotiation again
+</span><span style="color:#75715e"></span>resource <span style="color:#e6db74">&#34;alicloud_vpn_connection&#34;</span> <span style="color:#e6db74">&#34;ipsec_connection_1&#34;</span> {
+  name                <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;IPSecConnection1&#34;</span>
+  vpn_gateway_id      <span style="color:#f92672">=</span> alicloud_vpn_gateway.aws_vpn_gateway.id
+  customer_gateway_id <span style="color:#f92672">=</span> alicloud_vpn_customer_gateway.aws_customer_gateway_1.id
+  local_subnet        <span style="color:#f92672">=</span> [var.alicloud_vpc.cidr]
+  remote_subnet       <span style="color:#f92672">=</span> [var.aws_vpc.cidr]
+  effect_immediately  <span style="color:#f92672">=</span> true
+  ike_config {
+    ike_auth_alg  <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;sha1&#34;</span>
+    ike_enc_alg   <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;aes&#34;</span>
+    ike_version   <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;ikev1&#34;</span>
+    ike_mode      <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;main&#34;</span>
+    ike_lifetime  <span style="color:#f92672">=</span> <span style="color:#ae81ff">86400</span>
+    psk           <span style="color:#f92672">=</span> aws_vpn_connection.alicloud_vpn_connection.tunnel1_preshared_key
+    ike_pfs       <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;group2&#34;</span>
+    ike_local_id <span style="color:#f92672">=</span> alicloud_vpn_gateway.aws_vpn_gateway.internet_ip
+    ike_remote_id <span style="color:#f92672">=</span> aws_vpn_connection.alicloud_vpn_connection.tunnel1_address
+  }
+  ipsec_config {
+    ipsec_pfs      <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;group2&#34;</span>
+    ipsec_enc_alg  <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;aes&#34;</span>
+    ipsec_auth_alg <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;sha1&#34;</span>
+    ipsec_lifetime <span style="color:#f92672">=</span> <span style="color:#ae81ff">86400</span>
+  }
+}
+
+resource <span style="color:#e6db74">&#34;alicloud_vpn_connection&#34;</span> <span style="color:#e6db74">&#34;ipsec_connection_2&#34;</span> {
+  name                <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;IPSecConnection2&#34;</span>
+  vpn_gateway_id      <span style="color:#f92672">=</span> alicloud_vpn_gateway.aws_vpn_gateway.id
+  customer_gateway_id <span style="color:#f92672">=</span> alicloud_vpn_customer_gateway.aws_customer_gateway_2.id
+  local_subnet        <span style="color:#f92672">=</span> [var.alicloud_vpc.cidr]
+  remote_subnet       <span style="color:#f92672">=</span> [var.aws_vpc.cidr]
+  effect_immediately  <span style="color:#f92672">=</span> true
+  ike_config {
+    ike_auth_alg  <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;sha1&#34;</span>
+    ike_enc_alg   <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;aes&#34;</span>
+    ike_version   <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;ikev1&#34;</span>
+    ike_mode      <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;main&#34;</span>
+    ike_lifetime  <span style="color:#f92672">=</span> <span style="color:#ae81ff">86400</span>
+    psk           <span style="color:#f92672">=</span> aws_vpn_connection.alicloud_vpn_connection.tunnel2_preshared_key
+    ike_pfs       <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;group2&#34;</span>
+    ike_local_id <span style="color:#f92672">=</span> alicloud_vpn_gateway.aws_vpn_gateway.internet_ip
+    ike_remote_id <span style="color:#f92672">=</span> aws_vpn_connection.alicloud_vpn_connection.tunnel2_address
+  }
+  ipsec_config {
+    ipsec_pfs      <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;group2&#34;</span>
+    ipsec_enc_alg  <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;aes&#34;</span>
+    ipsec_auth_alg <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;sha1&#34;</span>
+    ipsec_lifetime <span style="color:#f92672">=</span> <span style="color:#ae81ff">86400</span>
+  }
+}
+</code></pre></div><p>Although, only a few of the above parameters are mandatory for making the request, have put in the exhaustive list just to give you guys an idea of what the parameters are.</p>
+<h3 id="vpn-connection-route-entry-1">VPN Connection Route Entry</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">resource <span style="color:#e6db74">&#34;alicloud_vpn_route_entry&#34;</span> <span style="color:#e6db74">&#34;alicloud_vpn_route_entry_1&#34;</span> {
+  vpn_gateway_id <span style="color:#f92672">=</span> alicloud_vpn_gateway.aws_vpn_gateway.id
+  route_dest     <span style="color:#f92672">=</span> var.aws_vpc.cidr
+  next_hop       <span style="color:#f92672">=</span> alicloud_vpn_connection.ipsec_connection_1.id
+  weight         <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+  publish_vpc    <span style="color:#f92672">=</span> true
+}
+
+resource <span style="color:#e6db74">&#34;alicloud_vpn_route_entry&#34;</span> <span style="color:#e6db74">&#34;alicloud_vpn_route_entry_2&#34;</span> {
+  vpn_gateway_id <span style="color:#f92672">=</span> alicloud_vpn_gateway.aws_vpn_gateway.id
+  route_dest     <span style="color:#f92672">=</span> var.aws_vpc.cidr
+  next_hop       <span style="color:#f92672">=</span> alicloud_vpn_connection.ipsec_connection_2.id
+  weight         <span style="color:#f92672">=</span> <span style="color:#ae81ff">100</span>
+  publish_vpc    <span style="color:#f92672">=</span> true
+}
+</code></pre></div><p>The link to the entire code can be found at the <a href="https://github.com/coder006/tf-aws-alicloud-vpn.git" title="Github Repository">tf-aws-alicloud-vpn</a> repository on Github.</p>
+<p>Happy Coding! Cheers :)</p>
+
+</div>
+
+  
+<footer class='entry-footer'>
+  <div class='container sep-before'><div class='tags'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <path d="M20.59,13.41l-7.17,7.17a2,2,0,0,1-2.83,0L2,12V2H12l8.59,8.59A2,2,0,0,1,20.59,13.41Z"/>
+  <line x1="7" y1="7" x2="7" y2="7"/>
+  
+</svg>
+<span class='screen-reader-text'>Tags: </span><a class='tag' href='/tags/aws/'>AWS</a>, <a class='tag' href='/tags/cloud/'>Cloud</a>, <a class='tag' href='/tags/alicloud/'>Alicloud</a>, <a class='tag' href='/tags/vpn/'>VPN</a></div>
+
+  </div>
+</footer>
+
+
+</article>
+
+<nav class='entry-nav'>
+  <div class='container'><div class='next-entry sep-before'>
+      <a href='/posts/tf-helm-kubernetes-elasticsearch-setup/'>
+        <span class='screen-reader-text'>Next post: </span>Tf Helm Kubernetes Elasticsearch Setup<span aria-hidden='true'>Next <svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <line x1="4" y1="12" x2="20" y2="12"/>
+  <polyline points="14 6 20 12 14 18"/>
+  
+</svg>
+</span>
+      </a>
+    </div></div>
+</nav>
+
+
+<section id='comments' class='comments'>
+  <div class='container sep-before'>
+    <div class='comments-area'><div id='submission-success' class='comment-submission-feedback'>
+  <h4>Thank You!</h4>
+  <span>Your comment has been submitted. It will appear on this page shortly!</span>
+  <a href='#comments' class='button'>OK</a>
+</div>
+
+<div id='submission-failure' class='comment-submission-feedback'>
+  <h4>Yikes, Sorry!</h4>
+  <span>Error occured. Couldn&#39;t submit your comment. Please try again. Thank You!</span>
+  <a href='#comments' class='button'>OK</a>
+</div>
+
+
+
+
+<div id='respond' class='comment-respond'>
+  <h4 class='comment-reply-title'>Leave a comment<small>
+      <a rel='nofollow' id='cancel-comment-reply-link' href='#respond' class='button' style='display:none' aria-label='Cancel comment'>Cancel</a>
+    </small>
+  </h4>
+  <form action='https://api.staticman.net/v2/entry/MunifTanjim/minimo/master/comments' method='post' id='comment-form' class='comment-form'>
+    <input type='hidden' name='options[postId]' value='de02ba71e4be0aa2b23960bc88892e5b'>
+    <input type='hidden' name='options[redirect]' value='https://ambar.dev/posts/aws-alicloud-vpn-setup-terraform/#submission-success'>
+    <input type='hidden' name='options[redirectError]' value='https://ambar.dev/posts/aws-alicloud-vpn-setup-terraform/#submission-failure'>
+
+    <input type='address' name='fields[honeypot]' style='display:none'>
+    <input type='hidden' name='fields[permalink]' value='/posts/aws-alicloud-vpn-setup-terraform/'>
+    <input type='hidden' name='fields[parent_id]' value=''><div>
+      <label for='comment'>Comment*</label>
+      <textarea id='comment' name='fields[content]' required rows='3'></textarea>
+    </div>
+    <div>
+      <label for='name'>Name*</label>
+      <input id='name' name='fields[author]' type='text' required>
+    </div>
+    <div>
+      <label for='email'>Email*</label>
+      <input id='email' name='fields[email]' type='email' required>
+    </div>
+    <div>
+      <label for='url'>Website</label>
+      <input id='url' name='fields[site]' type='url'>
+    </div><div>
+      <button type='submit' id="submitComment">Comment!</button>
+    </div>
+  </form>
+</div>
+
+</div>
+  </div>
+</section>
+
+      </main>
+
+      <footer id='footer' class='footer'>
+        <div class='container sep-before'><section class='widget widget-social_menu sep-after'><nav aria-label='Social Menu'>
+    <ul><li>
+        <a href='https://github.com/coder006' target='_blank' rel='noopener'>
+          <span class='screen-reader-text'>Open Github account in new tab</span><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+  
+</svg>
+</a>
+      </li><li>
+        <a href='https://twitter.com/decoder006' target='_blank' rel='noopener'>
+          <span class='screen-reader-text'>Open Twitter account in new tab</span><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+  
+</svg>
+</a>
+      </li><li>
+        <a href='https://instagram.com/_notanengineer' target='_blank' rel='noopener'>
+          <span class='screen-reader-text'>Open Instagram account in new tab</span><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+  <line x1="17.5" y1="6.5" x2="17.5" y2="6.5"/>
+  
+</svg>
+</a>
+      </li><li>
+        <a href='mailto:mehrotraambar@gmail.com' target='_blank' rel='noopener'>
+          <span class='screen-reader-text'>Contact via Email</span><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+  <polyline points="22,6 12,13 2,6"/>
+  
+</svg>
+</a>
+      </li></ul>
+  </nav>
+</section><div class='copyright'>
+  <p> &copy; 2020 Ambar Mehrotra </p>
+</div>
+
+        </div>
+      </footer>
+
+    </div>
+  </div><script>window.__assets_js_src="/assets/js/"</script>
+
+<script src='/assets/js/main.c3bcf2df.js'></script><script src='/js/custom.js'></script>
+
+</body>
+
+</html>
+

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Containers on Ambar Mehrotra</title>
+    <link>https://ambar.dev/tags/containers/</link>
+    <description>Recent content in Containers on Ambar Mehrotra</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Fri, 12 Jun 2020 18:12:47 +0530</lastBuildDate>
+    
+	<atom:link href="https://ambar.dev/tags/containers/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Kubernetes Readiness Probe</title>
+      <link>https://ambar.dev/posts/kubernetes-readiness-probe/</link>
+      <pubDate>Fri, 12 Jun 2020 18:12:47 +0530</pubDate>
+      
+      <guid>https://ambar.dev/posts/kubernetes-readiness-probe/</guid>
+      <description>It&amp;rsquo;s been a long time since I wrote, and the post on Kubernetes Readiness probes has been long overdue. If you haven&amp;rsquo;t checked out the first part of this post on Kubernetes Liveness Probes, I suggest you to check that out. In this post, we will be looking mainly at the Readiness Probe and how it can be used to monitor the health of your applications.
+As discussed earlier, Kubernetes provides 3 different kinds of health checks to monitor the state of your applications:</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes Liveness Probe</title>
+      <link>https://ambar.dev/posts/kubernetes-liveness-probe/</link>
+      <pubDate>Sun, 19 Apr 2020 16:30:51 +0530</pubDate>
+      
+      <guid>https://ambar.dev/posts/kubernetes-liveness-probe/</guid>
+      <description>It was not very long ago when we were deploying individual services on each Virtual Machine. This process required the engineer in charge of the deployment process to be aware of all the machines where each service was deployed. Sure, people had build great solutions around this deployment model like tagging their EC2 machines with special names and using automation tools like Rundeck, Jenkins, etc., to automate the deployment process. Although this process had matured to a great extent over several years, it still had it&amp;rsquo;s shortcomings like &amp;ndash; random application crashes, ineffecient deployment practices, poor reselience to failures, improper resource utilization, and bad practices around secret and configuration management.</description>
+    </item>
+    
+  </channel>
+</rss>

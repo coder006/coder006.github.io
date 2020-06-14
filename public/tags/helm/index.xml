@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Helm on Ambar Mehrotra</title>
+    <link>https://ambar.dev/tags/helm/</link>
+    <description>Recent content in Helm on Ambar Mehrotra</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Thu, 02 Apr 2020 18:20:25 +0530</lastBuildDate>
+    
+	<atom:link href="https://ambar.dev/tags/helm/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Tf Helm Kubernetes Elasticsearch Setup</title>
+      <link>https://ambar.dev/posts/tf-helm-kubernetes-elasticsearch-setup/</link>
+      <pubDate>Thu, 02 Apr 2020 18:20:25 +0530</pubDate>
+      
+      <guid>https://ambar.dev/posts/tf-helm-kubernetes-elasticsearch-setup/</guid>
+      <description>Github Repository: tf-helm-kubernetes-elasticsearch
+ Note: This guide uses Terraform for making API calls and state management. If you have helm installed on your machine, you can use that instead for installing the chart.
+ What is Elasticsearch? According to the Elasticsearch website:
+ Elasticsearch is a distributed, open source search and analytics engine for all types of data, including textual, numerical, geospatial, structured, and unstructured.
+ Elasticsearch is generally used as the underlying engine for platforms that perform complex text search, logging, or real-time advanced analytics operations.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Alicloud on Ambar Mehrotra</title>
+    <link>https://ambar.dev/tags/alicloud/</link>
+    <description>Recent content in Alicloud on Ambar Mehrotra</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Thu, 19 Mar 2020 20:30:00 +0530</lastBuildDate>
+    
+	<atom:link href="https://ambar.dev/tags/alicloud/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Aws Alicloud Vpn Setup Terraform</title>
+      <link>https://ambar.dev/posts/aws-alicloud-vpn-setup-terraform/</link>
+      <pubDate>Thu, 19 Mar 2020 20:30:00 +0530</pubDate>
+      
+      <guid>https://ambar.dev/posts/aws-alicloud-vpn-setup-terraform/</guid>
+      <description>Github Repository: tf-aws-alicloud-vpn
+ Note: This is not a guide on the internals of a Virtual Private Network. Rather, this post outlines how to setup a VPN connection between AWS and Alicloud. This guide uses Terraform for making API calls and state management. You can chose to use any HTTP client or aws and alicloud CLIs as well for making the same API calls and end up with a working VPN connection.</description>
+    </item>
+    
+  </channel>
+</rss>

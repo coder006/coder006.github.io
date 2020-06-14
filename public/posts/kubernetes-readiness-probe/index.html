@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang='en' dir='auto'><head>
+  <meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='description' content='It&rsquo;s been a long time since I wrote, and the post on Kubernetes Readiness probes has been long overdue. If you haven&rsquo;t checked out the first part of this post on Kubernetes Liveness Probes, I suggest you to check that out. In this post, we will be looking mainly at the Readiness Probe and how it can be used to monitor the health of your applications.
+As discussed earlier, Kubernetes provides 3 different kinds of health checks to monitor the state of your applications:'>
+<meta name='theme-color' content='#ffcd00'>
+
+<meta property='og:title' content='Kubernetes Readiness Probe • Ambar Mehrotra'>
+<meta property='og:description' content='It&rsquo;s been a long time since I wrote, and the post on Kubernetes Readiness probes has been long overdue. If you haven&rsquo;t checked out the first part of this post on Kubernetes Liveness Probes, I suggest you to check that out. In this post, we will be looking mainly at the Readiness Probe and how it can be used to monitor the health of your applications.
+As discussed earlier, Kubernetes provides 3 different kinds of health checks to monitor the state of your applications:'>
+<meta property='og:url' content='https://ambar.dev/posts/kubernetes-readiness-probe/'>
+<meta property='og:site_name' content='Ambar Mehrotra'>
+<meta property='og:type' content='article'><meta property='article:section' content='posts'><meta property='article:tag' content='Cloud'><meta property='article:tag' content='Kubernetes'><meta property='article:tag' content='AWS'><meta property='article:tag' content='Containers'><meta property='article:published_time' content='2020-06-12T18:12:47&#43;05:30'/><meta property='article:modified_time' content='2020-06-12T18:12:47&#43;05:30'/><meta name='twitter:card' content='summary'><meta name='twitter:site' content='@decoder006'>
+
+<meta name="generator" content="Hugo 0.72.0" />
+
+  <title>Kubernetes Readiness Probe • Ambar Mehrotra</title>
+  <link rel='canonical' href='https://ambar.dev/posts/kubernetes-readiness-probe/'>
+  
+  
+  <link rel='icon' href='/images/profile-picture.png'>
+<link rel='stylesheet' href='/assets/css/main.ab98e12b.css'><link rel='stylesheet' href='/css/custom.css'><style>
+:root{--color-accent:#ffcd00;}
+</style>
+
+  
+
+</head>
+<body class='page type-posts has-sidebar'>
+
+  <div class='site'><div id='sidebar' class='sidebar'>
+  <a class='screen-reader-text' href='#main-menu'>Skip to Main Menu</a>
+
+  <div class='container'><section class='widget widget-about sep-after'>
+  <header>
+    
+    <div class='logo'>
+      <a href='/'>
+        <img src='/images/profile-picture.png'>
+      </a>
+    </div>
+    
+    <h2 class='title site-title '>
+      <a href='/'>
+      Ambar Mehrotra
+      </a>
+    </h2>
+    <div class='desc'>
+    Trying to build something meaningful, hoping to find 42 in it!
+    </div>
+  </header>
+
+</section>
+<section class='widget widget-sidebar_menu sep-after'><nav id='sidebar-menu' class='menu sidebar-menu' aria-label='Sidebar Menu'>
+    <div class='container'>
+      <ul><li class='item'>
+  <a href='/'>Home</a></li></ul>
+    </div>
+  </nav>
+
+</section><section class='widget widget-search sep-after'>
+  <header>
+    <h4 class='title widget-title'>Search</h4>
+  </header>
+
+  <form action='/search' id='search-form' class='search-form'>
+    <label>
+      <span class='screen-reader-text'>Search</span>
+      <input id='search-term' class='search-term' type='search' name='q' placeholder='Search&hellip;'>
+    </label></form>
+
+</section>
+<section class='widget widget-taxonomy_cloud sep-after'>
+  <header>
+    <h4 class='title widget-title'>Tags</h4>
+  </header>
+
+  <div class='container list-container'>
+  <ul class='list taxonomy-cloud'><li>
+        <a href='/tags/alicloud/' style='font-size:1em'>Alicloud</a>
+      </li><li>
+        <a href='/tags/aws/' style='font-size:1.6666666666666665em'>AWS</a>
+      </li><li>
+        <a href='/tags/cloud/' style='font-size:2em'>Cloud</a>
+      </li><li>
+        <a href='/tags/containers/' style='font-size:1.3333333333333333em'>Containers</a>
+      </li><li>
+        <a href='/tags/elasticsearch/' style='font-size:1em'>Elasticsearch</a>
+      </li><li>
+        <a href='/tags/helm/' style='font-size:1em'>Helm</a>
+      </li><li>
+        <a href='/tags/kubernetes/' style='font-size:1.6666666666666665em'>Kubernetes</a>
+      </li><li>
+        <a href='/tags/vpn/' style='font-size:1em'>VPN</a>
+      </li></ul>
+</div>
+
+
+</section>
+</div>
+
+  <div class='sidebar-overlay'></div>
+</div><div class='main'><a class='screen-reader-text' href='#content'>Skip to Content</a>
+
+<button id='sidebar-toggler' class='sidebar-toggler' aria-controls='sidebar'>
+  <span class='screen-reader-text'>Toggle Sidebar</span>
+  <span class='open'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <line x1="3" y1="12" x2="21" y2="12" />
+  <line x1="3" y1="6" x2="21" y2="6" />
+  <line x1="3" y1="18" x2="21" y2="18" />
+  
+</svg>
+</span>
+  <span class='close'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <line x1="18" y1="6" x2="6" y2="18" />
+  <line x1="6" y1="6" x2="18" y2="18" />
+  
+</svg>
+</span>
+</button><div class='header-widgets'>
+        <div class='container'>
+    
+    <style>.widget-breadcrumbs li:after{content:'\2f '}</style>
+  <section class='widget widget-breadcrumbs sep-after'>
+    <nav id='breadcrumbs'>
+      <ol><li><a href='/'>Home</a></li><li><a href='/posts/'>Posts</a></li><li><span>Kubernetes Readiness Probe</span></li></ol>
+    </nav>
+  </section></div>
+      </div>
+
+      <header id='header' class='header site-header'>
+        <div class='container sep-after'>
+          <div class='header-info'><p class='site-title title'>Ambar Mehrotra</p><p class='desc site-desc'>Trying to build something meaningful, hoping to find 42 in it!</p>
+          </div>
+        </div>
+      </header>
+
+      <main id='content'>
+
+
+<article lang='en' class='entry'>
+  <header class='header entry-header'>
+  <div class='container sep-after'>
+    <div class='header-info'>
+      <h1 class='title'>Kubernetes Readiness Probe</h1>
+      
+
+    </div>
+    <div class='entry-meta'>
+  <span class='posted-on'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+  <line x1="16" y1="2" x2="16" y2="6"/>
+  <line x1="8" y1="2" x2="8" y2="6"/>
+  <line x1="3" y1="10" x2="21" y2="10"/>
+  
+</svg>
+<span class='screen-reader-text'>Posted on </span>
+  <time class='entry-date' datetime='2020-06-12T18:12:47&#43;05:30'>2020, Jun 12</time>
+</span>
+
+  
+  
+<span class='reading-time'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <circle cx="12" cy="12" r="10"/>
+  <polyline points="12 6 12 12 15 15"/>
+  
+</svg>
+5 mins read
+</span>
+
+
+</div>
+
+
+  </div>
+</header>
+
+  
+  
+
+  <div class='container entry-content'>
+  <p>It&rsquo;s been a long time since I wrote, and the post on Kubernetes Readiness probes has been long overdue. If you haven&rsquo;t checked out the first part of this post on <a href="https://dev.to/_notanengineer/an-introduction-to-kubernetes-health-checks-liveness-probe-part-i-2elj">Kubernetes Liveness Probes</a>, I suggest you to check that out. In this post, we will be looking mainly at the Readiness Probe and how it can be used to monitor the health of your applications.</p>
+<p>As discussed earlier, Kubernetes provides <strong>3 different kinds of health checks</strong> to monitor the state of your applications:</p>
+<ul>
+<li>Liveness Probe</li>
+<li>Readiness Probe</li>
+<li>Startup Probe</li>
+</ul>
+<p>When you are working with cloud applications, you might come across scenarios when one or more instances of your application might not be ready to serve any requests. In such scenarios, you would preferably not want the traffic to be routed to those instances. Some of these scenarios include but are not limited to:</p>
+<ul>
+<li>One of your application instances might be performing a batch operation periodically &ndash; like reading a large SQL table and writing the results to S3</li>
+<li>Your application instances might be loading data from a DB to a cache on startup, and you do not want them to serve any traffic until the cache is populated</li>
+<li>You might not want your application to serve any traffic if some of the dependent services are down &ndash; for example, if you have an image processing service that works off of files in Amazon S3, you might want to stop directing any traffic to your image processing service if S3 itself is down.</li>
+</ul>
+<blockquote>
+<p>Note: In the above scenario, it is advisable to configure your readiness probe in a way that it is able to differentiate between the dependent service being unavailable vs having latency issues. For example, you would not want your service to stop serving requests if S3 has an increased latency of 100ms.</p>
+</blockquote>
+<p><strong>In most of the scenarios mentioned above, you don’t want to kill the application, but you don’t want to send it requests either. Kubernetes provides Readiness probes to detect and mitigate these situations</strong>. Readiness probes can be used by your application to tell Kubernetes that it is not ready to accept any traffic at the moment.</p>
+<p><img src="https://media.giphy.com/media/8cuVdoyDlfRnPFYMcv/giphy.gif" alt="Not Ready"></p>
+<p>According to the Kbernetes Documentation:</p>
+<blockquote>
+<p>The kubelet uses readiness probes to know when a container is ready to start accepting traffic. A Pod is considered ready when all of its containers are ready. One use of this signal is to control which Pods are used as backends for Services. When a Pod is not ready, it is removed from Service load balancers</p>
+</blockquote>
+<p>What this essentially means is that <strong>when the Readiness probe fails for a particular pod of your application, Kubernetes removes that pod from the service mapping and stops forwarding any traffic to it</strong>.</p>
+<p><img src="https://media.giphy.com/media/dWCimzZf4IbSWaPIZA/source.gif" alt="Readiness Prob"></p>
+<h1 id="anatomy-of-a-readiness-probe">Anatomy of a Readiness Probe</h1>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#66d9ef">apiVersion</span>: v1
+<span style="color:#66d9ef">kind</span>: Pod
+<span style="color:#66d9ef">metadata</span>:
+  <span style="color:#66d9ef">labels</span>:
+    <span style="color:#66d9ef">test</span>: readiness
+  <span style="color:#66d9ef">name</span>: readiness-exec
+<span style="color:#66d9ef">spec</span>:
+  <span style="color:#66d9ef">containers</span>:
+  - <span style="color:#66d9ef">name</span>: readiness
+    <span style="color:#66d9ef">image</span>: k8s.gcr.io/busybox
+    <span style="color:#66d9ef">args</span>:
+    - /bin/sh
+    - -c
+    - touch /tmp/healthy; sleep <span style="color:#ae81ff">30</span>; rm -rf /tmp/healthy; sleep <span style="color:#ae81ff">600</span>
+    <span style="color:#66d9ef">readinessProbe</span>:
+      <span style="color:#66d9ef">exec</span>:
+        <span style="color:#66d9ef">command</span>:
+        - cat
+        - /tmp/healthy
+      <span style="color:#66d9ef">initialDelaySeconds</span>: <span style="color:#ae81ff">5</span>
+      <span style="color:#66d9ef">periodSeconds</span>: <span style="color:#ae81ff">5</span>
+</code></pre></div><p>If you look at the <code>readinessProbe</code> section of the yaml, you can see that the kubelet performs a <code>cat</code> operation on the <code>/tmp/healthy</code> file. If the file is present and the cat operation is successful, the command returns with exit status 0, and the kubelet considers the container to be available and ready to accept traffic. On the other hand, if the command returns with a non zero exit status, kubelet removes the container from the Service/LoadBalancer until the readiness probe succeeds again. No traffic is forwarded to this container until it starts returning success again.</p>
+<p>The <code>initialDelaySeconds</code> parameter tells the kubelet that it should wait for 5 seconds before performing the first readiness check. This ensures that the container is not considered to be in an unavailable state when it is booting up. After the initial delay, the kubelet performs the readiness check every 5 seconds as defined by the <code>periodSeconds</code> field.</p>
+<p>Apart from generic commands, a Readiness probe can also be defined over TCP and HTTP endpoints which are specially helpful if you are developing web applications.</p>
+<h2 id="tcp-readiness-probe">TCP readiness probe</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#66d9ef">apiVersion</span>: v1
+<span style="color:#66d9ef">kind</span>: Pod
+<span style="color:#66d9ef">metadata</span>:
+  <span style="color:#66d9ef">name</span>: goproxy
+  <span style="color:#66d9ef">labels</span>:
+    <span style="color:#66d9ef">app</span>: goproxy
+<span style="color:#66d9ef">spec</span>:
+  <span style="color:#66d9ef">containers</span>:
+  - <span style="color:#66d9ef">name</span>: goproxy
+    <span style="color:#66d9ef">image</span>: k8s.gcr.io/goproxy:<span style="color:#ae81ff">0.1</span>
+    <span style="color:#66d9ef">ports</span>:
+    - <span style="color:#66d9ef">containerPort</span>: <span style="color:#ae81ff">8080</span>
+    <span style="color:#66d9ef">readinessProbe</span>:
+      <span style="color:#66d9ef">tcpSocket</span>:
+        <span style="color:#66d9ef">port</span>: <span style="color:#ae81ff">8080</span>
+      <span style="color:#66d9ef">initialDelaySeconds</span>: <span style="color:#ae81ff">15</span>
+      <span style="color:#66d9ef">periodSeconds</span>: <span style="color:#ae81ff">20</span>
+</code></pre></div><p>This kind of readiness probe is basically a port check. If you want to check if a particular port on your web application is responsive or not, this is the way to go.</p>
+<h2 id="http-readiness-probe">HTTP readiness probe</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#66d9ef">apiVersion</span>: v1
+<span style="color:#66d9ef">kind</span>: Pod
+<span style="color:#66d9ef">metadata</span>:
+  <span style="color:#66d9ef">labels</span>:
+    <span style="color:#66d9ef">test</span>: readiness
+  <span style="color:#66d9ef">name</span>: readiness-http
+<span style="color:#66d9ef">spec</span>:
+  <span style="color:#66d9ef">containers</span>:
+  - <span style="color:#66d9ef">name</span>: readiness
+    <span style="color:#66d9ef">image</span>: k8s.gcr.io/readiness
+    <span style="color:#66d9ef">args</span>:
+    - /server
+    <span style="color:#66d9ef">readinessProbe</span>:
+      <span style="color:#66d9ef">httpGet</span>:
+        <span style="color:#66d9ef">path</span>: /readiness
+        <span style="color:#66d9ef">port</span>: <span style="color:#ae81ff">8080</span>
+        <span style="color:#66d9ef">httpHeaders</span>:
+        - <span style="color:#66d9ef">name</span>: Custom-Header
+          <span style="color:#66d9ef">value</span>: Awesome
+      <span style="color:#66d9ef">initialDelaySeconds</span>: <span style="color:#ae81ff">3</span>
+      <span style="color:#66d9ef">periodSeconds</span>: <span style="color:#ae81ff">3</span>
+</code></pre></div><p>For an HTTP readiness probe, kubelet polls the endpoint of the container as defined by the path and port parameters in the yaml. If the endpoint returns a success status code, the container is considered healthy.</p>
+<blockquote>
+<p>Any code greater than or equal to 200 and less than 400 indicates success. Any other code indicates failure</p>
+</blockquote>
+<h1 id="conclusion">Conclusion</h1>
+<p>In this post we looked at certain scenarios where you might not want an instance of your application to be available to serve requests, and how Kubernetes Liveness Probe helps you identify and mitigate such scenarios effectively. Stay healthy and stay tuned.</p>
+<p><img src="https://i.giphy.com/media/8lMQKIZIXiOn0VVs3A/giphy.gif" alt="Gotta stay healthy"></p>
+<p>Happy Coding! Cheers :)</p>
+
+</div>
+
+  
+<footer class='entry-footer'>
+  <div class='container sep-before'><div class='tags'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <path d="M20.59,13.41l-7.17,7.17a2,2,0,0,1-2.83,0L2,12V2H12l8.59,8.59A2,2,0,0,1,20.59,13.41Z"/>
+  <line x1="7" y1="7" x2="7" y2="7"/>
+  
+</svg>
+<span class='screen-reader-text'>Tags: </span><a class='tag' href='/tags/aws/'>AWS</a>, <a class='tag' href='/tags/cloud/'>Cloud</a>, <a class='tag' href='/tags/containers/'>Containers</a>, <a class='tag' href='/tags/kubernetes/'>Kubernetes</a></div>
+
+  </div>
+</footer>
+
+
+</article>
+
+<nav class='entry-nav'>
+  <div class='container'><div class='prev-entry sep-before'>
+      <a href='/posts/kubernetes-liveness-probe/'>
+        <span aria-hidden='true'><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <line x1="20" y1="12" x2="4" y2="12"/>
+  <polyline points="10 18 4 12 10 6"/>
+  
+</svg>
+ Previous</span>
+        <span class='screen-reader-text'>Previous post: </span>Kubernetes Liveness Probe</a>
+    </div></div>
+</nav>
+
+
+<section id='comments' class='comments'>
+  <div class='container sep-before'>
+    <div class='comments-area'><div id='submission-success' class='comment-submission-feedback'>
+  <h4>Thank You!</h4>
+  <span>Your comment has been submitted. It will appear on this page shortly!</span>
+  <a href='#comments' class='button'>OK</a>
+</div>
+
+<div id='submission-failure' class='comment-submission-feedback'>
+  <h4>Yikes, Sorry!</h4>
+  <span>Error occured. Couldn&#39;t submit your comment. Please try again. Thank You!</span>
+  <a href='#comments' class='button'>OK</a>
+</div>
+
+
+
+
+<div id='respond' class='comment-respond'>
+  <h4 class='comment-reply-title'>Leave a comment<small>
+      <a rel='nofollow' id='cancel-comment-reply-link' href='#respond' class='button' style='display:none' aria-label='Cancel comment'>Cancel</a>
+    </small>
+  </h4>
+  <form action='https://api.staticman.net/v2/entry/MunifTanjim/minimo/master/comments' method='post' id='comment-form' class='comment-form'>
+    <input type='hidden' name='options[postId]' value='015f86771b8333274f1e035e544af082'>
+    <input type='hidden' name='options[redirect]' value='https://ambar.dev/posts/kubernetes-readiness-probe/#submission-success'>
+    <input type='hidden' name='options[redirectError]' value='https://ambar.dev/posts/kubernetes-readiness-probe/#submission-failure'>
+
+    <input type='address' name='fields[honeypot]' style='display:none'>
+    <input type='hidden' name='fields[permalink]' value='/posts/kubernetes-readiness-probe/'>
+    <input type='hidden' name='fields[parent_id]' value=''><div>
+      <label for='comment'>Comment*</label>
+      <textarea id='comment' name='fields[content]' required rows='3'></textarea>
+    </div>
+    <div>
+      <label for='name'>Name*</label>
+      <input id='name' name='fields[author]' type='text' required>
+    </div>
+    <div>
+      <label for='email'>Email*</label>
+      <input id='email' name='fields[email]' type='email' required>
+    </div>
+    <div>
+      <label for='url'>Website</label>
+      <input id='url' name='fields[site]' type='url'>
+    </div><div>
+      <button type='submit' id="submitComment">Comment!</button>
+    </div>
+  </form>
+</div>
+
+</div>
+  </div>
+</section>
+
+      </main>
+
+      <footer id='footer' class='footer'>
+        <div class='container sep-before'><section class='widget widget-social_menu sep-after'><nav aria-label='Social Menu'>
+    <ul><li>
+        <a href='https://github.com/coder006' target='_blank' rel='noopener'>
+          <span class='screen-reader-text'>Open Github account in new tab</span><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+  
+</svg>
+</a>
+      </li><li>
+        <a href='https://twitter.com/decoder006' target='_blank' rel='noopener'>
+          <span class='screen-reader-text'>Open Twitter account in new tab</span><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+  
+</svg>
+</a>
+      </li><li>
+        <a href='https://instagram.com/_notanengineer' target='_blank' rel='noopener'>
+          <span class='screen-reader-text'>Open Instagram account in new tab</span><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+  <line x1="17.5" y1="6.5" x2="17.5" y2="6.5"/>
+  
+</svg>
+</a>
+      </li><li>
+        <a href='mailto:mehrotraambar@gmail.com' target='_blank' rel='noopener'>
+          <span class='screen-reader-text'>Contact via Email</span><svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+  <polyline points="22,6 12,13 2,6"/>
+  
+</svg>
+</a>
+      </li></ul>
+  </nav>
+</section><div class='copyright'>
+  <p> &copy; 2020 Ambar Mehrotra </p>
+</div>
+
+        </div>
+      </footer>
+
+    </div>
+  </div><script>window.__assets_js_src="/assets/js/"</script>
+
+<script src='/assets/js/main.c3bcf2df.js'></script><script src='/js/custom.js'></script>
+
+</body>
+
+</html>
+

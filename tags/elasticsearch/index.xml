@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Elasticsearch on Ambar Mehrotra</title>
+    <title>Elasticsearch on All Things Connected</title>
     <link>https://ambar.dev/tags/elasticsearch/</link>
-    <description>Recent content in Elasticsearch on Ambar Mehrotra</description>
+    <description>Recent content in Elasticsearch on All Things Connected</description>
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Thu, 02 Apr 2020 18:20:25 +0530</lastBuildDate>
     
@@ -11,7 +11,7 @@
     
     
     <item>
-      <title>Tf Helm Kubernetes Elasticsearch Setup</title>
+      <title>Terraform Helm Kubernetes Elasticsearch Setup</title>
       <link>https://ambar.dev/posts/tf-helm-kubernetes-elasticsearch-setup/</link>
       <pubDate>Thu, 02 Apr 2020 18:20:25 +0530</pubDate>
       

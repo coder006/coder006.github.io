@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on Ambar Mehrotra</title>
+    <title>Posts on All Things Connected</title>
     <link>https://ambar.dev/posts/</link>
-    <description>Recent content in Posts on Ambar Mehrotra</description>
+    <description>Recent content in Posts on All Things Connected</description>
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Sun, 14 Jun 2020 17:04:37 +0530</lastBuildDate>
     
@@ -39,7 +39,7 @@ As discussed earlier, Kubernetes provides 3 different kinds of health checks to 
     </item>
     
     <item>
-      <title>Tf Helm Kubernetes Elasticsearch Setup</title>
+      <title>Terraform Helm Kubernetes Elasticsearch Setup</title>
       <link>https://ambar.dev/posts/tf-helm-kubernetes-elasticsearch-setup/</link>
       <pubDate>Thu, 02 Apr 2020 18:20:25 +0530</pubDate>
       
